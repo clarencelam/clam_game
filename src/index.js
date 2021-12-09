@@ -55,14 +55,7 @@ function gameLoop(timestamp) {
 
   // update and draw customer objects
   customers = customers.filter((customer) => !customer.markfordelete);
-  customers.forEach((customer, index) => {
-    customer.update(deltaTime);
-    customer.draw(ctx);
-  });
-  // reload customers array (temporary code, will flesh out cust gen)
-  if (customers.length < 3) {
-    customers.push(new Customer(GAME_HEIGHT, GAME_WIDTH));
-  }
+  updateCustomers(customers, deltaTime);
 
   // update and draw bullets
   bullets = bullets.filter((bullet) => !bullet.marked_for_deletion);
@@ -132,6 +125,18 @@ function custEatingFood(bullet, customer, coins) {
     if (customer.hunger_points <= 0) {
       clearInterval(eatTime);
     }
+  }
+}
+
+function updateCustomers(customers, deltaTime) {
+  // Updating and drawing customers each frame
+  customers.forEach((customer, index) => {
+    customer.update(deltaTime);
+    customer.draw(ctx);
+  });
+  // reload customers array (temporary code, will flesh out cust gen)
+  if (customers.length < 3) {
+    customers.push(new Customer(GAME_HEIGHT, GAME_WIDTH));
   }
 }
 
