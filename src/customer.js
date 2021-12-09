@@ -93,6 +93,16 @@ export default class Customer {
     }
   }
 
+  checkOutsideBorders() {
+    // Delete customers when they cross the screen & exit
+    if (
+      (this.x_pos > this.GAMEWIDTH && this.x_direction === 1) ||
+      (this.x_pos + this.size < 0 && this.x_direction === -1)
+    ) {
+      this.markfordelete = true;
+    }
+  }
+
   update(deltaTime) {
     if (this.hunger_points <= 0) {
       console.log("customer hunger at 0");
@@ -102,9 +112,8 @@ export default class Customer {
     this.x_pos = this.x_pos + this.speed * this.x_direction;
     this.y_pos = this.y_pos + this.speed * this.y_direction;
 
-    if (this.turned_around === true && this.x_pos > this.GAMEWIDTH) {
-      this.markfordelete = true;
-    }
+    // if cust
+    this.checkOutsideBorders();
   }
 }
 

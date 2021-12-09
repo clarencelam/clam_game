@@ -37,7 +37,7 @@ export function detectOverlapCollision(bullet, object) {
     bottomOfBullet < bottomOfObject + object.size / 2 && // bottom of bullet is under the top of obj
     topOfBullet > topOfObject - object.size / 2 &&
     leftOfBullet > leftOfObject &&
-    leftOfBullet < rightOfObject
+    rightOfBullet < rightOfObject
   ) {
     return true;
   } else {
@@ -62,4 +62,27 @@ export function incrementalAction(funct, millisec, terminate_function) {
 
 export function eatFood(customer, bullet) {
   customer.hungerpoints = customer.hunger_points - bullet.hunger_fill;
+}
+
+export function custEatingFood(bullet, customer) {
+  // Actions to perform when Customer hits Food in game
+  console.log("customer_hit");
+  customer.hit = true;
+  customer.hitFood(bullet);
+
+  // Add new coin object
+  coins.push(new Coin(customer.x_pos, customer.y_pos));
+
+  // Code to represent the
+  var eatTime = setInterval(custEat, 750);
+
+  function custEat() {
+    const fill_points = 1;
+    customer.hunger_points = customer.hunger_points - fill_points;
+    console.log(customer.hunger_points);
+
+    if (customer.hunger_points <= 0) {
+      clearInterval(eatTime);
+    }
+  }
 }
