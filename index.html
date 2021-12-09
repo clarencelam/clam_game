@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chef Clam</title>
+    <meta charset="UTF-8" />
+
+    <style>
+      #gameScreen {
+        border: 1px solid grey;
+      }
+
+      img {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <img id="clam_default" src="assets/images/clam_default.png" />
+    <img id="clam_flipped" src="assets/images/clam_default.png" /
+    style="transform: scaleX(-1);"/>
+    <img id="nigiri_img" src="assets/images/nigiri.png" />
+    <img id="fish_1" src="assets/images/fish_1.png" />
+    <img id="fish_2" src="assets/images/fish_2.png" />
+
+    <img id="background" src="assets/images/background.png" />
+
+    <canvas id="gameScreen" width="1200" height="800"></canvas>
+    <script defer src="src/index.js"></script>
+  </body>
+</html>

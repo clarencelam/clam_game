@@ -1,0 +1,7 @@
+body {
+  font-family: sans-serif;
+}
+
+flip-image {
+  transform: scaleX(-1);
+}
