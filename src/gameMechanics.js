@@ -37,7 +37,7 @@ export function detectOverlapCollision(bullet, object) {
     bottomOfBullet < bottomOfObject + object.size / 2 && // bottom of bullet is under the top of obj
     topOfBullet > topOfObject - object.size / 2 &&
     leftOfBullet > leftOfObject &&
-    leftOfBullet < rightOfObject
+    rightOfBullet < rightOfObject
   ) {
     return true;
   } else {

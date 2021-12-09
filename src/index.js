@@ -2,6 +2,7 @@ import Clam from "/src/clam";
 import InputHandler from "/src/input";
 import Food from "/src/food";
 import Customer from "/src/customer";
+import Coin from "/src/coin";
 import {
   detectCollision,
   foodShrink,
@@ -21,13 +22,14 @@ export function randomIntFromInterval(min, max) {
 }
 
 let background = document.getElementById("background");
-let clam = new Clam(GAME_WIDTH, GAME_HEIGHT);
-let bullets = [];
 
-// create customer list and add one
+// Create main character
+let clam = new Clam(GAME_WIDTH, GAME_HEIGHT);
+
+// Create lists to contain bullets, coins, and custs
+let bullets = [];
+let coins = [];
 let customers = [];
-let cust = new Customer(GAME_HEIGHT, GAME_WIDTH);
-customers.push(cust);
 
 let lastTime = 0;
 new InputHandler(clam);
@@ -43,6 +45,14 @@ function gameLoop(timestamp) {
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
   ctx.drawImage(background, 0, 0, 1200, 800);
 
+  //update and draw coin objects
+  coins = coins.filter((coin) => !coin.marked_for_deletion);
+
+  coins.forEach((coin, index) => {
+    coin.update();
+    coin.draw(ctx);
+  });
+
   // update and draw customer objects
   customers = customers.filter((customer) => !customer.markfordelete);
   customers.forEach((customer, index) => {
@@ -50,14 +60,14 @@ function gameLoop(timestamp) {
     customer.draw(ctx);
   });
   // reload customers array (temporary code, will flesh out cust gen)
-  if (customers.length < 1) {
+  if (customers.length < 3) {
     customers.push(new Customer(GAME_HEIGHT, GAME_WIDTH));
   }
 
   // update and draw bullets
   bullets = bullets.filter((bullet) => !bullet.marked_for_deletion);
 
-  // COLLISION DETECTION AND ACTIONS //
+  // BELOW BIG ASS FUNCTION IS FOR BULLET-CUSTOMER COLLISION DETECTION AND ACTIONS //
 
   bullets.forEach((bullet, index) => {
     customers.forEach((customer, index) => {
@@ -70,6 +80,9 @@ function gameLoop(timestamp) {
           customer.hitFood(bullet);
 
           var eatTime = setInterval(custEat, 750);
+
+          // Add new coin object
+          coins.push(new Coin(customer.x_pos, customer.y_pos));
 
           function custEat() {
             const fill_points = 1;
@@ -105,6 +118,7 @@ function gameLoop(timestamp) {
     bullet.update(deltaTime);
     bullet.draw(ctx);
   });
+
   clam.update(deltaTime);
   clam.draw(ctx);
 
