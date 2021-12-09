@@ -73,26 +73,11 @@ function gameLoop(timestamp) {
     customers.forEach((customer, index) => {
       // checks if the food is done colliding (needs to get into range)
       if (detectOverlapCollision(bullet, customer)) {
+        // flag to prevent multiple triggers
+
         if (customer.hit === false) {
           // perform bullet & customer's post-hit actions
-          console.log("customer_hit");
-          customer.hit = true;
-          customer.hitFood(bullet);
-
-          var eatTime = setInterval(custEat, 750);
-
-          // Add new coin object
-          coins.push(new Coin(customer.x_pos, customer.y_pos));
-
-          function custEat() {
-            const fill_points = 1;
-            customer.hunger_points = customer.hunger_points - fill_points;
-            console.log(customer.hunger_points);
-
-            if (customer.hunger_points <= 0) {
-              clearInterval(eatTime);
-            }
-          }
+          custEatingFood(bullet, customer, coins);
         }
 
         if (bullet.food_hit === false) {
@@ -124,4 +109,31 @@ function gameLoop(timestamp) {
 
   requestAnimationFrame(gameLoop);
 }
+
+// HELPER FUNCTIONS
+
+function custEatingFood(bullet, customer, coins) {
+  // Actions to perform when Customer hits Food in game
+  console.log("customer_hit");
+  customer.hit = true;
+  customer.hitFood(bullet);
+
+  // Add new coin object
+  coins.push(new Coin(customer.x_pos, customer.y_pos));
+
+  // Code to represent the
+  var eatTime = setInterval(custEat, 750);
+
+  function custEat() {
+    const fill_points = 1;
+    customer.hunger_points = customer.hunger_points - fill_points;
+    console.log(customer.hunger_points);
+
+    if (customer.hunger_points <= 0) {
+      clearInterval(eatTime);
+    }
+  }
+}
+
+// RUN GAMELOOP
 gameLoop();
