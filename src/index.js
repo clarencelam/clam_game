@@ -75,6 +75,8 @@ function gameLoop(timestamp) {
 
         if (bullet.food_hit === false) {
           // flag to prevent multiple triggers
+          foodBeingEaten(bullet, customer);
+          /*
           bullet.food_hit = true;
           bullet.hitCustomer(customer);
 
@@ -90,6 +92,7 @@ function gameLoop(timestamp) {
               clearInterval(intervalId);
             }
           }
+          */
         }
       }
     });
@@ -124,6 +127,24 @@ function custEatingFood(bullet, customer, coins) {
 
     if (customer.hunger_points <= 0) {
       clearInterval(eatTime);
+    }
+  }
+}
+
+function foodBeingEaten(bullet, customer) {
+  bullet.food_hit = true;
+  bullet.hitCustomer(customer);
+
+  var intervalId = setInterval(biteShrink, 750);
+
+  function biteShrink() {
+    const shrinkAmount = 25;
+    bullet.size = bullet.size - shrinkAmount;
+    bullet.x_pos = bullet.x_pos + shrinkAmount / 2;
+    bullet.y_pos = bullet.y_pos + shrinkAmount / 2;
+
+    if (bullet.size <= 0) {
+      clearInterval(intervalId);
     }
   }
 }
