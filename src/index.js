@@ -65,18 +65,49 @@ export function fireBullet() {
   bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
 }
 
+function updateBullets(bullets, deltaTime) {
+  bullets.forEach((bullet, index) => {
+    customers.forEach((customer, index) => {
+      // checks if the food is done colliding (needs to get into range)
+      if (detectOverlapCollision(bullet, customer)) {
+        if (customer.hunger_points <= 0 && customer.dropped_coin === false) {
+          coins.push(new Coin(customer.x_pos, customer.y_pos));
+          customer.dropped_coin = true;
+        }
+        // Trigger eating actions
+        if (customer.hit === false) {
+          custEatingFood(bullet, customer, coins);
+        }
+        if (bullet.food_hit === false) {
+          foodBeingEaten(bullet, customer);
+        }
+      }
+    });
+    bullet.update(deltaTime);
+    bullet.draw(ctx);
+  });
+}
+
+function updateCustomers(customers, deltaTime) {
+  // Updating and drawing customers each frame
+  customers.forEach((customer, index) => {
+    customer.update(deltaTime);
+    customer.draw(ctx);
+  });
+  // reload customers array (temporary code, will flesh out cust gen)
+  if (customers.length < 3) {
+    customers.push(new Customer(GAME_HEIGHT, GAME_WIDTH));
+  }
+}
+
 function custEatingFood(bullet, customer, coins) {
-  // Actions to perform when Customer hits Food in game
+  // Actions for Customer to perform when they hit Food in game
   console.log("customer_hit");
   customer.hit = true;
   customer.hitFood(bullet);
 
-  // Add new coin object
-  coins.push(new Coin(customer.x_pos, customer.y_pos));
-
-  // Code to represent the
+  // Code to represent the customer "eating" the food
   var eatTime = setInterval(custEat, 750);
-
   function custEat() {
     const fill_points = 1;
     customer.hunger_points = customer.hunger_points - fill_points;
@@ -103,37 +134,6 @@ function foodBeingEaten(bullet, customer) {
     if (bullet.size <= 0) {
       clearInterval(intervalId);
     }
-  }
-}
-
-function updateBullets(bullets, deltaTime) {
-  bullets.forEach((bullet, index) => {
-    customers.forEach((customer, index) => {
-      // checks if the food is done colliding (needs to get into range)
-      if (detectOverlapCollision(bullet, customer)) {
-        // flag to prevent multiple triggers
-        if (customer.hit === false) {
-          custEatingFood(bullet, customer, coins);
-        }
-        if (bullet.food_hit === false) {
-          foodBeingEaten(bullet, customer);
-        }
-      }
-    });
-    bullet.update(deltaTime);
-    bullet.draw(ctx);
-  });
-}
-
-function updateCustomers(customers, deltaTime) {
-  // Updating and drawing customers each frame
-  customers.forEach((customer, index) => {
-    customer.update(deltaTime);
-    customer.draw(ctx);
-  });
-  // reload customers array (temporary code, will flesh out cust gen)
-  if (customers.length < 3) {
-    customers.push(new Customer(GAME_HEIGHT, GAME_WIDTH));
   }
 }
 

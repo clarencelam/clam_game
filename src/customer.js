@@ -16,6 +16,7 @@ export default class Customer {
     this.min = 0;
     this.max = gameHeight * 0.75;
     this.rndBinary = randomIntFromInterval(1, 2);
+    this.dropped_coin = false;
     const rndInt = randomIntFromInterval(this.min, this.max);
 
     if (this.rndBinary === 1) {
