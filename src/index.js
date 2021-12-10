@@ -82,12 +82,19 @@ export function randomIntFromInterval(min, max) {
 }
 
 export function fireBullet() {
-  bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
+  // Perform activites for shooting a food object
+  // Check if kitchen has food available
+  if (kitchen.cooked_food > 0) {
+    bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
+    kitchen.cooked_food -= 1;
+  } else {
+    console.log("no more bullets");
+  }
 }
 
 function initializeKitchen(kitchen) {
   if (kitchen.cooking === false) {
-    var kitchenCooking = setInterval(cookFood, 700);
+    var kitchenCooking = setInterval(cookFood, kitchen.cook_time);
     kitchen.cooking = true;
   }
   function cookFood() {

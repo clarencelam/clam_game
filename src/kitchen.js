@@ -5,6 +5,7 @@ export default class Kitchen {
     this.number_pos_y = gameHeight * (2 / 3);
     this.cooking = false;
     this.cooked_food = 0;
+    this.cook_time = 2000;
   }
 
   draw(ctx) {
