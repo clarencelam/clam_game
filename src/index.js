@@ -3,6 +3,7 @@ import InputHandler from "/src/input";
 import Food from "/src/food";
 import Customer from "/src/customer";
 import Coin from "/src/coin";
+import GameStats from "/src/gameStats";
 import {
   detectCollision,
   foodShrink,
@@ -26,6 +27,7 @@ let bullets = [];
 let coins = [];
 let customers = [];
 let lastTime = 0;
+let gameStats = new GameStats();
 
 new InputHandler(clam);
 
@@ -33,6 +35,7 @@ new InputHandler(clam);
 function gameLoop(timestamp) {
   let deltaTime = timestamp - lastTime;
   lastTime = timestamp;
+  console.log(timestamp);
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
   ctx.drawImage(background, 0, 0, 1200, 800);
@@ -43,6 +46,7 @@ function gameLoop(timestamp) {
   coins.forEach((coin, index) => {
     if (detectCollision(coin, clam)) {
       coin.marked_for_deletion = true;
+      gameStats.score = gameStats.score + coin.value;
     }
     coin.draw(ctx);
   });
@@ -55,6 +59,11 @@ function gameLoop(timestamp) {
   bullets = bullets.filter((bullet) => !bullet.marked_for_deletion);
   updateBullets(bullets, deltaTime);
 
+  // update and draw gamescore
+  ctx.font = "20px Georgia";
+  ctx.fillText("DOLLARS: " + gameStats.score, 10, 20);
+
+  // update and draw clam character
   clam.update(deltaTime);
   clam.draw(ctx);
 
@@ -82,7 +91,6 @@ function updateBullets(bullets, deltaTime) {
           customer.done_dropping_coin === false
         ) {
           dropCoin(customer, coins);
-          console.log("dropped coin");
         }
         // trigger customer eating process if customer has not yet begun
         if (customer.hit === false) {
@@ -124,7 +132,6 @@ function updateCustomers(customers, deltaTime) {
 
 function custEatingFood(bullet, customer, coins) {
   // Actions for Customer to perform when they hit Food in game
-  console.log("customer_hit");
   customer.hit = true;
   customer.hitFood(bullet);
 
