@@ -6,6 +6,7 @@ export default class Coin {
     this.y_pos = y;
     this.size = 25;
     this.marked_for_deletion = false;
+    this.value = 1;
   }
 
   draw(ctx) {

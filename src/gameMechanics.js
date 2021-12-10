@@ -50,7 +50,6 @@ export function foodShrink(bullet) {
   bullet.size = bullet.size - biteSize;
   bullet.x_pos = bullet.x_pos + biteSize / 2;
   bullet.y_pos = bullet.y_pos + biteSize / 2;
-  console.log(bullet.size);
 }
 
 export function incrementalAction(funct, millisec, terminate_function) {
@@ -66,7 +65,6 @@ export function eatFood(customer, bullet) {
 
 export function custEatingFood(bullet, customer) {
   // Actions to perform when Customer hits Food in game
-  console.log("customer_hit");
   customer.hit = true;
   customer.hitFood(bullet);
 
@@ -79,7 +77,6 @@ export function custEatingFood(bullet, customer) {
   function custEat() {
     const fill_points = 1;
     customer.hunger_points = customer.hunger_points - fill_points;
-    console.log(customer.hunger_points);
 
     if (customer.hunger_points <= 0) {
       clearInterval(eatTime);

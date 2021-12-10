@@ -16,6 +16,7 @@ export default class Customer {
     this.min = 0;
     this.max = gameHeight * 0.75;
     this.rndBinary = randomIntFromInterval(1, 2);
+    this.done_dropping_coin = false;
     const rndInt = randomIntFromInterval(this.min, this.max);
 
     if (this.rndBinary === 1) {
@@ -105,7 +106,6 @@ export default class Customer {
 
   update(deltaTime) {
     if (this.hunger_points <= 0) {
-      console.log("customer hunger at 0");
       this.doneEating();
     }
     // Movement
@@ -116,21 +116,3 @@ export default class Customer {
     this.checkOutsideBorders();
   }
 }
-
-// Old code for turning fish around when they hit the threshold
-/*
-    // If customer is at x_walk_threshold, wait for this.wait_time, then return to the right
-    if (this.x_pos <= this.x_walk_threshold) {
-      if (this.wait_time > 0) {
-        this.speed = 0;
-        this.walking = false;
-        this.wait_time = this.wait_time - 1;
-      }
-      if (this.wait_time <= 0 && this.stopped !== true) {
-        this.apply_return_speed();
-        this.turned_around = true;
-        this.x_direction = 1;
-        this.walking = true;
-      }
-    }
-*/
