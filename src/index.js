@@ -14,8 +14,11 @@ import {
 // -------------- INITIALIZE GAME OBJECTS ----------------
 const GAME_WIDTH = 1200;
 const GAME_HEIGHT = 800;
-let canvas = document.getElementById("gameScreen");
+let canvas = document.getElementById("canvas1");
 let ctx = canvas.getContext("2d");
+canvas.height = 800;
+canvas.width = 1200;
+
 let background = document.getElementById("background");
 
 let clam = new Clam(GAME_WIDTH, GAME_HEIGHT);
@@ -38,7 +41,9 @@ function gameLoop(timestamp) {
   coins = coins.filter((coin) => !coin.marked_for_deletion);
 
   coins.forEach((coin, index) => {
-    coin.update();
+    if (detectCollision(coin, clam)) {
+      coin.marked_for_deletion = true;
+    }
     coin.draw(ctx);
   });
 
@@ -65,22 +70,69 @@ export function fireBullet() {
   bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
 }
 
+function updateBullets(bullets, deltaTime) {
+  //function to update bullets each loop
+  bullets.forEach((bullet, index) => {
+    customers.forEach((customer, index) => {
+      if (detectOverlapCollision(bullet, customer)) {
+        // if bullets are colliding:
+        // drop coin if customer is done eating
+        if (
+          customer.hunger_points <= 0 &&
+          customer.done_dropping_coin === false
+        ) {
+          dropCoin(customer, coins);
+          console.log("dropped coin");
+        }
+        // trigger customer eating process if customer has not yet begun
+        if (customer.hit === false) {
+          custEatingFood(bullet, customer, coins);
+        }
+        // trigger food being eaten process if food has not yet
+        if (bullet.food_hit === false) {
+          foodBeingEaten(bullet, customer);
+        }
+      }
+    });
+    bullet.update(deltaTime);
+    bullet.draw(ctx);
+  });
+}
+
+function dropCoin(customer, coins) {
+  // Function to make customer drop coin
+  coins.push(
+    new Coin(
+      customer.x_pos + customer.size / 2,
+      customer.y_pos + customer.size / 2
+    )
+  );
+  customer.done_dropping_coin = true;
+}
+
+function updateCustomers(customers, deltaTime) {
+  // Updating and drawing customers each frame
+  customers.forEach((customer, index) => {
+    customer.update(deltaTime);
+    customer.draw(ctx);
+  });
+  // reload customers array (temporary code, will flesh out cust gen)
+  if (customers.length < 3) {
+    customers.push(new Customer(GAME_HEIGHT, GAME_WIDTH));
+  }
+}
+
 function custEatingFood(bullet, customer, coins) {
-  // Actions to perform when Customer hits Food in game
+  // Actions for Customer to perform when they hit Food in game
   console.log("customer_hit");
   customer.hit = true;
   customer.hitFood(bullet);
 
-  // Add new coin object
-  coins.push(new Coin(customer.x_pos, customer.y_pos));
-
-  // Code to represent the
+  // Code to represent the customer "eating" the food
   var eatTime = setInterval(custEat, 750);
-
   function custEat() {
     const fill_points = 1;
     customer.hunger_points = customer.hunger_points - fill_points;
-    console.log(customer.hunger_points);
 
     if (customer.hunger_points <= 0) {
       clearInterval(eatTime);
@@ -103,37 +155,6 @@ function foodBeingEaten(bullet, customer) {
     if (bullet.size <= 0) {
       clearInterval(intervalId);
     }
-  }
-}
-
-function updateBullets(bullets, deltaTime) {
-  bullets.forEach((bullet, index) => {
-    customers.forEach((customer, index) => {
-      // checks if the food is done colliding (needs to get into range)
-      if (detectOverlapCollision(bullet, customer)) {
-        // flag to prevent multiple triggers
-        if (customer.hit === false) {
-          custEatingFood(bullet, customer, coins);
-        }
-        if (bullet.food_hit === false) {
-          foodBeingEaten(bullet, customer);
-        }
-      }
-    });
-    bullet.update(deltaTime);
-    bullet.draw(ctx);
-  });
-}
-
-function updateCustomers(customers, deltaTime) {
-  // Updating and drawing customers each frame
-  customers.forEach((customer, index) => {
-    customer.update(deltaTime);
-    customer.draw(ctx);
-  });
-  // reload customers array (temporary code, will flesh out cust gen)
-  if (customers.length < 3) {
-    customers.push(new Customer(GAME_HEIGHT, GAME_WIDTH));
   }
 }
 
