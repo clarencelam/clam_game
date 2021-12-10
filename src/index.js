@@ -4,6 +4,7 @@ import Food from "/src/food";
 import Customer from "/src/customer";
 import Coin from "/src/coin";
 import GameStats from "/src/gameStats";
+import Kitchen from "/src/kitchen";
 import {
   detectCollision,
   foodShrink,
@@ -28,6 +29,7 @@ let coins = [];
 let customers = [];
 let lastTime = 0;
 let gameStats = new GameStats();
+let kitchen = new Kitchen(GAME_HEIGHT, GAME_WIDTH);
 
 new InputHandler(clam);
 
@@ -39,6 +41,10 @@ function gameLoop(timestamp) {
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
   ctx.drawImage(background, 0, 0, 1200, 800);
+
+  // Perform the kitchen cooking loop
+  initializeKitchen(kitchen);
+  kitchen.draw(ctx);
 
   //update and draw coin objects
   coins = coins.filter((coin) => !coin.marked_for_deletion);
@@ -77,6 +83,20 @@ export function randomIntFromInterval(min, max) {
 
 export function fireBullet() {
   bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
+}
+
+function initializeKitchen(kitchen) {
+  if (kitchen.cooking === false) {
+    var kitchenCooking = setInterval(cookFood, 700);
+    kitchen.cooking = true;
+  }
+  function cookFood() {
+    kitchen.cooked_food += 1;
+
+    if (kitchen.cooking === false) {
+      clearInterval(kitchenCooking);
+    }
+  }
 }
 
 function updateBullets(bullets, deltaTime) {
