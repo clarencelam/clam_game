@@ -9,6 +9,8 @@ export default class Clam {
     this.size = 75;
     this.x_speed = 5;
     this.y_speed = 4;
+    this.bullets = 0; // # of food in hand to fire as bullets
+    this.inKitchenZone = false;
 
     this.moving_left = false;
     this.moving_right = false;
@@ -80,5 +82,6 @@ export default class Clam {
       default:
         ctx.drawImage(this.img, this.x_pos, this.y_pos, this.size, this.size);
     }
+    ctx.fillText("Food held:" + this.bullets, this.x_pos, this.y_pos);
   }
 }

@@ -37,7 +37,7 @@ new InputHandler(clam);
 function gameLoop(timestamp) {
   let deltaTime = timestamp - lastTime;
   lastTime = timestamp;
-  console.log(timestamp);
+  //  console.log(timestamp);
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
   ctx.drawImage(background, 0, 0, 1200, 800);
@@ -71,6 +71,7 @@ function gameLoop(timestamp) {
 
   // update and draw clam character
   clam.update(deltaTime);
+  checkClamInKitchen();
   clam.draw(ctx);
 
   requestAnimationFrame(gameLoop);
@@ -81,14 +82,27 @@ export function randomIntFromInterval(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-export function fireBullet() {
-  // Perform activites for shooting a food object
-  // Check if kitchen has food available
-  if (kitchen.cooked_food > 0) {
-    bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
-    kitchen.cooked_food -= 1;
+export function spacebarTrigger() {
+  // Perform activites for when spacebar is pressed
+  if (clam.inKitchenZone === true) {
+    // collect bullets from kitchen
+    clam.bullets = kitchen.cooked_food;
+    kitchen.cooked_food = 0;
   } else {
-    console.log("no more bullets");
+    if (clam.bullets > 0) {
+      bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
+      clam.bullets -= 1;
+    }
+  }
+}
+
+function checkClamInKitchen() {
+  // check if clam is in kitchen area
+  if (detectCollision(kitchen, clam)) {
+    clam.inKitchenZone = true;
+    console.log("clam in kitchen");
+  } else {
+    clam.inKitchenZone = false;
   }
 }
 
