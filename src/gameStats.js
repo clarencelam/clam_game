@@ -1,6 +1,7 @@
 export default class GameStats {
   constructor() {
     this.dollars = 0;
+    this.level = 1;
   }
   update() {}
   draw(ctx) {

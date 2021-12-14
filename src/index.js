@@ -52,7 +52,7 @@ function gameLoop(timestamp) {
   coins.forEach((coin, index) => {
     if (detectCollision(coin, clam)) {
       coin.marked_for_deletion = true;
-      gameStats.score = gameStats.score + coin.value;
+      gameStats.dollars = gameStats.dollars + coin.value;
     }
     coin.draw(ctx);
   });
@@ -111,7 +111,9 @@ function initializeKitchen(kitchen) {
     kitchen.cooking = true;
   }
   function cookFood() {
-    kitchen.cooked_food += 1;
+    if (kitchen.cooked_food <= kitchen.max_food) {
+      kitchen.cooked_food += 1;
+    }
 
     if (kitchen.cooking === false) {
       clearInterval(kitchenCooking);
