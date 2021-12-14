@@ -1,4 +1,4 @@
-import { fireBullet } from "/src/index";
+import { spacebarTrigger } from "/src/index";
 
 export default class InputHandler {
   constructor(clam) {
@@ -18,7 +18,7 @@ export default class InputHandler {
           break;
         case 32:
           // Shoot a bullet
-          fireBullet();
+          spacebarTrigger();
           clam.shooting = true;
           break;
         default:
