@@ -5,6 +5,7 @@ import Customer from "/src/customer";
 import Coin from "/src/coin";
 import GameStats from "/src/gameStats";
 import Kitchen from "/src/kitchen";
+import FoodSprite from "/src/foodSprite";
 import {
   detectCollision,
   foodShrink,
@@ -40,7 +41,7 @@ function gameLoop(timestamp) {
   //  console.log(timestamp);
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-  ctx.drawImage(background, 0, 0, 1200, 800);
+  //ctx.drawImage(background, 0, 0, 1200, 800);
 
   // Perform the kitchen cooking loop
   initializeKitchen(kitchen);
@@ -85,12 +86,15 @@ export function spacebarTrigger() {
   // Perform activites for when spacebar is pressed
   if (clam.inKitchenZone === true) {
     // collect bullets from kitchen
-    clam.bullets = clam.bullets + kitchen.cooked_food;
+    for (let i = 1; i <= kitchen.cooked_food; i += 1) {
+      clam.bullets_held.push(new FoodSprite(clam.x_pos, clam.y_pos));
+    }
     kitchen.cooked_food = 0;
   } else {
-    if (clam.bullets > 0) {
+    // if clam bullet length > 0, fire bullet
+    if (clam.bullets_held.length > 0) {
       bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
-      clam.bullets -= 1;
+      clam.bullets_held.shift(); // removes last item in array
     }
   }
 }
@@ -111,7 +115,8 @@ function initializeKitchen(kitchen) {
     kitchen.cooking = true;
   }
   function cookFood() {
-    if (kitchen.cooked_food <= kitchen.max_food) {
+    // Cook a food bullet into the kitchen if space is available
+    if (kitchen.cooked_food < kitchen.max_food) {
       kitchen.cooked_food += 1;
     }
 

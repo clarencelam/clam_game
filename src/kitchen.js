@@ -17,7 +17,7 @@ export default class Kitchen {
     this.number_pos_y = gameHeight * (2 / 3);
     this.cooking = false;
     this.cooked_food = 0;
-    this.cook_time = 2000;
+    this.cook_time = 500;
   }
 
   draw(ctx) {
@@ -39,7 +39,7 @@ export default class Kitchen {
     for (let i = 0; i < this.cooked_food; i += 1) {
       ctx.drawImage(
         this.food_img1,
-        0 + i * this.cooked_food_size,
+        i * this.cooked_food_size,
         this.game_height - this.cooked_food_size,
         this.cooked_food_size,
         this.cooked_food_size
