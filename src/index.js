@@ -65,9 +65,8 @@ function gameLoop(timestamp) {
   bullets = bullets.filter((bullet) => !bullet.marked_for_deletion);
   updateBullets(bullets, deltaTime);
 
-  // update and draw gamescore
-  ctx.font = "20px Georgia";
-  ctx.fillText("DOLLARS: " + gameStats.score, 10, 20);
+  // update and draw game score, lives, other stats
+  gameStats.draw(ctx);
 
   // update and draw clam character
   clam.update(deltaTime);
@@ -86,7 +85,7 @@ export function spacebarTrigger() {
   // Perform activites for when spacebar is pressed
   if (clam.inKitchenZone === true) {
     // collect bullets from kitchen
-    clam.bullets = kitchen.cooked_food;
+    clam.bullets = clam.bullets + kitchen.cooked_food;
     kitchen.cooked_food = 0;
   } else {
     if (clam.bullets > 0) {

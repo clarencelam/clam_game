@@ -24,9 +24,11 @@ export default class Kitchen {
       this.truck_height
     );
     ctx.fillText(
-      "ORDERS READY:" + this.cooked_food,
+      "KITCHEN - ORDERS READY:" + this.cooked_food,
       this.number_pos_x,
       this.number_pos_y
     );
+    ctx.rect(this.x_pos, this.y_pos, this.size, this.size);
+    ctx.stroke();
   }
 }
