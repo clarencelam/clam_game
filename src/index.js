@@ -19,8 +19,8 @@ const GAME_WIDTH = 1200;
 const GAME_HEIGHT = 800;
 let canvas = document.getElementById("canvas1");
 let ctx = canvas.getContext("2d");
-canvas.height = 800;
-canvas.width = 1200;
+canvas.height = GAME_HEIGHT;
+canvas.width = GAME_WIDTH;
 
 let background = document.getElementById("background");
 

@@ -95,9 +95,14 @@ export default class Clam {
       this.y_pos
     );
 
+    /*
     // draw food sprites
     this.bullets_held.forEach((bullet, index) => {
       bullet.draw(ctx);
     });
+    */
+    for (var i = this.bullets_held.length - 1; i >= 0; i--) {
+      this.bullets_held[i].draw(ctx);
+    }
   }
 }
