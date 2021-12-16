@@ -1,6 +1,8 @@
+import { randomIntFromInterval } from "/src/gameMechanics";
+
 export default class Food {
   // Class to represent the food objects used as bullets in the game
-  constructor(x, y, facing) {
+  constructor(x, y, facing, kitchenFood = false, kitchen) {
     this.image = document.getElementById("nigiri_img");
     this.x_pos = x;
     this.y_pos = y;
@@ -12,8 +14,18 @@ export default class Food {
     this.marked_for_deletion = false;
     this.food_hit = false;
     this.hunger_fill = 1;
+    this.pickupable = false;
 
     this.direction = facing; // 1 if right, -1 if left
+
+    if (kitchenFood === true) {
+      this.rnd_speed = randomIntFromInterval(2, 9);
+
+      this.fade_depricator = 0;
+      this.pickupable = true;
+      this.init_speed = this.rnd_speed;
+      console.log("spit new kitchen foood");
+    }
   }
 
   hitCustomer(customer) {

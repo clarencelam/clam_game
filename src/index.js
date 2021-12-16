@@ -11,7 +11,8 @@ import {
   foodShrink,
   detectOverlapCollision,
   incrementalAction,
-  eatFood
+  eatFood,
+  randomIntFromInterval
 } from "/src/gameMechanics";
 
 // -------------- INITIALIZE GAME OBJECTS ----------------
@@ -45,6 +46,9 @@ function gameLoop(timestamp) {
 
   // Perform the kitchen cooking loop
   initializeKitchen(kitchen);
+  // update and draw kitchen objects
+  checkClamInKitchen();
+  kitchen.update();
   kitchen.draw(ctx);
 
   //update and draw coin objects
@@ -71,31 +75,20 @@ function gameLoop(timestamp) {
 
   // update and draw clam character
   clam.update(deltaTime);
-  checkClamInKitchen();
   clam.draw(ctx);
 
   requestAnimationFrame(gameLoop);
 }
 
 // ----------------- HELPER FUNCTIONS --------------------------
-export function randomIntFromInterval(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
 
 export function spacebarTrigger() {
   // Perform activites for when spacebar is pressed
-  if (clam.inKitchenZone === true) {
-    // collect bullets from kitchen
-    for (let i = 1; i <= kitchen.cooked_food; i += 1) {
-      clam.bullets_held.push(new FoodSprite(clam.x_pos, clam.y_pos));
-    }
-    kitchen.cooked_food = 0;
-  } else {
-    // if clam bullet length > 0, fire bullet
-    if (clam.bullets_held.length > 0) {
-      bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
-      clam.bullets_held.shift(); // removes last item in array
-    }
+
+  // if clam bullet length > 0, fire bullet
+  if (clam.bullets_held.length > 0) {
+    bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
+    clam.bullets_held.shift(); // removes last item in array
   }
 }
 
@@ -107,17 +100,37 @@ function checkClamInKitchen() {
   } else {
     clam.inKitchenZone = false;
   }
+
+  // Detect collision between clam and kitchen food
+  kitchen.cooked_food.forEach((food, index) => {
+    if (detectCollision(clam, food)) {
+      food.marked_for_deletion = true;
+      console.log("clam collide w kitchen food");
+      clam.bullets_held.push(new FoodSprite(clam.x_pos, clam.y_pos));
+    }
+  });
 }
 
 function initializeKitchen(kitchen) {
+  // Start kitchen and begin cooking food
   if (kitchen.cooking === false) {
     var kitchenCooking = setInterval(cookFood, kitchen.cook_time);
     kitchen.cooking = true;
   }
   function cookFood() {
     // Cook a food bullet into the kitchen if space is available
-    if (kitchen.cooked_food < kitchen.max_food) {
-      kitchen.cooked_food += 1;
+
+    if (kitchen.cooked_food.length < kitchen.max_food) {
+      // Generate random y point within food truck window
+      this.rndBinary = randomIntFromInterval(
+        kitchen.y_pos + kitchen.truck_height * (2 / 5), // top of truck window
+        kitchen.y_pos + kitchen.truck_height * (3 / 5) - 5 // bottom of truck window
+      );
+
+      kitchen.cooked_food.push(
+        new Food(kitchen.x_pos + 30, this.rndBinary, 1, true, this.kitchen)
+      );
+      console.log("newfood pushed to kitchen");
     }
 
     if (kitchen.cooking === false) {
@@ -149,6 +162,13 @@ function updateBullets(bullets, deltaTime) {
         }
       }
     });
+    // Detect collision between bullet and clam
+    if (detectCollision(bullet, clam) && bullet.pickupable === true) {
+      clam.bullets_held.push(new FoodSprite(clam.x_pos, clam.y_pos));
+      bullet.marked_for_deletion = true;
+      console.log("clam collide w existing food");
+    }
+
     bullet.update(deltaTime);
     bullet.draw(ctx);
   });

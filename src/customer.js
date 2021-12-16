@@ -1,4 +1,4 @@
-import { randomIntFromInterval, incrementalAction } from "/src/index";
+import { randomIntFromInterval, incrementalAction } from "/src/gameMechanics";
 export default class Customer {
   // class to represent the cusomter fish that player will feed
 
