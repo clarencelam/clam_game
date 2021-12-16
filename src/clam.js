@@ -9,8 +9,8 @@ export default class Clam {
     this.size = 75;
     this.x_speed = 5;
     this.y_speed = 4;
-    this.bullets = 0; // # of food in hand to fire as bullets
-    this.inKitchenZone = false;
+
+    this.bullets_held = []; // # of food in hand to fire as bullets
 
     this.moving_left = false;
     this.moving_right = false;
@@ -39,6 +39,11 @@ export default class Clam {
     if (this.moving_down === true && this.y_pos < this.GAMEHEIGHT - this.size) {
       this.y_pos = this.y_pos + this.y_speed;
     }
+
+    // update
+    this.bullets_held.forEach((bullet, index) => {
+      bullet.update(this.x_pos, this.y_pos, this.facing, index);
+    });
   }
 
   drawShootingTilt(ctx, deg) {
@@ -82,6 +87,20 @@ export default class Clam {
       default:
         ctx.drawImage(this.img, this.x_pos, this.y_pos, this.size, this.size);
     }
-    ctx.fillText("Food held:" + this.bullets, this.x_pos, this.y_pos);
+    ctx.fillText(
+      "Food held:" + this.bullets_held.length,
+      this.x_pos,
+      this.y_pos
+    );
+
+    /*
+    // draw food sprites
+    this.bullets_held.forEach((bullet, index) => {
+      bullet.draw(ctx);
+    });
+    */
+    for (var i = this.bullets_held.length - 1; i >= 0; i--) {
+      this.bullets_held[i].draw(ctx);
+    }
   }
 }
