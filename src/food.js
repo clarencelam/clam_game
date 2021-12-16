@@ -15,6 +15,7 @@ export default class Food {
     this.food_hit = false;
     this.hunger_fill = 1;
     this.pickupable = false;
+    this.spinning = true;
 
     this.direction = facing; // 1 if right, -1 if left
 
@@ -25,13 +26,17 @@ export default class Food {
       this.pickupable = true;
       this.init_speed = this.rnd_speed;
       console.log("spit new kitchen foood");
+      this.spinning = false;
     }
+
+    this.deg = 0;
   }
 
   hitCustomer(customer) {
     // actions when food hits customer
     // below if-block ensures the food is actually over the customer image before both stop
     this.stop();
+    this.spinning = false;
   }
 
   stop() {
@@ -39,15 +44,17 @@ export default class Food {
     this.speed_depricator = this.init_speed;
   }
 
-  draw(ctx) {
-    // Draw the food with a spin effect
-    var time = new Date();
+  advanceSpinDegree() {
+    // increases the degree of this.deg to spin food
+    this.deg = this.deg + 2;
+  }
+
+  drawHelper(ctx) {
+    // draws food with tilt degree = this.deg
     ctx.save();
+    var rad = (this.deg * Math.PI) / 180;
     ctx.translate(this.x_pos + this.size / 2, this.y_pos + this.size / 2);
-    ctx.rotate(
-      ((2 * Math.PI) / 6) * time.getSeconds() +
-        ((2 * Math.PI) / 6000) * time.getMilliseconds()
-    );
+    ctx.rotate(rad);
     ctx.drawImage(
       this.image,
       (this.size / 2) * -1,
@@ -56,6 +63,17 @@ export default class Food {
       this.size
     );
     ctx.restore();
+  }
+
+  draw(ctx) {
+    if (this.spinning === true) {
+      // draw food and advance spin
+      this.drawHelper(ctx);
+      this.advanceSpinDegree();
+    } else {
+      // draw food no spin
+      this.drawHelper(ctx);
+    }
   }
 
   update(deltaTime) {

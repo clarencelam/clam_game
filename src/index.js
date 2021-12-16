@@ -47,9 +47,10 @@ function gameLoop(timestamp) {
   // Perform the kitchen cooking loop
   initializeKitchen(kitchen);
   // update and draw kitchen objects
-  checkClamInKitchen();
   kitchen.update();
   kitchen.draw(ctx);
+  // check if clam is over a food
+  checkClamGettingFood();
 
   //update and draw coin objects
   coins = coins.filter((coin) => !coin.marked_for_deletion);
@@ -92,15 +93,7 @@ export function spacebarTrigger() {
   }
 }
 
-function checkClamInKitchen() {
-  // check if clam is in kitchen area
-  if (detectCollision(kitchen, clam)) {
-    clam.inKitchenZone = true;
-    console.log("clam in kitchen");
-  } else {
-    clam.inKitchenZone = false;
-  }
-
+function checkClamGettingFood() {
   // Detect collision between clam and kitchen food
   kitchen.cooked_food.forEach((food, index) => {
     if (detectCollision(clam, food)) {
@@ -128,6 +121,7 @@ function initializeKitchen(kitchen) {
       );
 
       kitchen.cooked_food.push(
+        // push new food item to food truck
         new Food(kitchen.x_pos + 30, this.rndBinary, 1, true, this.kitchen)
       );
       console.log("newfood pushed to kitchen");

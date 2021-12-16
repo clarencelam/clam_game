@@ -12,8 +12,6 @@ export default class Clam {
 
     this.bullets_held = []; // # of food in hand to fire as bullets
 
-    this.inKitchenZone = false;
-
     this.moving_left = false;
     this.moving_right = false;
     this.moving_up = false;
