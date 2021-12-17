@@ -1,11 +1,14 @@
 export default class GameStats {
   constructor() {
+    this.game_active = true;
+    this.business_day_active = true;
+
     this.dollars = 0;
     this.day = 1;
 
     this.timerOn = false;
-    this.start_hr = 9;
-    this.start_min = 0;
+    this.business_day_timer = 5;
+
     this.advance_interval = 500; //one second = two minute passes in timer
   }
 
@@ -14,16 +17,6 @@ export default class GameStats {
     ctx.font = "20px Georgia";
     ctx.fillText("DOLLARS: " + this.dollars, 10, 20);
 
-    // function to add leading 0 for minutes if minutes <10
-    if (this.start_min < 10) {
-      ctx.fillText("TIME: " + this.start_hr + ":00", 10, 40, 100);
-    } else {
-      ctx.fillText(
-        "TIME: " + this.start_hr + ":" + this.start_min,
-        10,
-        40,
-        100
-      );
-    }
+    ctx.fillText("DAYTIME LEFT: " + this.business_day_timer, 10, 40);
   }
 }

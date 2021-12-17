@@ -39,46 +39,50 @@ new InputHandler(clam);
 function gameLoop(timestamp) {
   let deltaTime = timestamp - lastTime;
   lastTime = timestamp;
-  //  console.log(timestamp);
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-  //ctx.drawImage(background, 0, 0, 1200, 800);
 
-  // Perform the kitchen cooking loop
-  initializeKitchen(kitchen);
-  initializeTimer();
+  if (gameStats.game_active === true) {
+    if (gameStats.business_day_active === true) {
+      // Game actions only to occur if business day is active
 
-  // update and draw kitchen objects
-  kitchen.update();
-  kitchen.draw(ctx);
-  // check if clam is over a food
-  checkClamGettingFood();
+      // Perform the kitchen cooking loop
+      initializeKitchen(kitchen);
+      initializeTimer();
 
-  //update and draw coin objects
-  coins = coins.filter((coin) => !coin.marked_for_deletion);
-
-  coins.forEach((coin, index) => {
-    if (detectCollision(coin, clam)) {
-      coin.marked_for_deletion = true;
-      gameStats.dollars = gameStats.dollars + coin.value;
+      // update and draw customer objects
+      customers = customers.filter((customer) => !customer.markfordelete);
+      updateCustomers(customers, deltaTime);
     }
-    coin.draw(ctx);
-  });
 
-  // update and draw customer objects
-  customers = customers.filter((customer) => !customer.markfordelete);
-  updateCustomers(customers, deltaTime);
+    // update and draw kitchen objects
+    kitchen.update();
+    kitchen.draw(ctx);
+    // check if clam is over a food
+    checkClamGettingFood();
 
-  // update and draw bullets
-  bullets = bullets.filter((bullet) => !bullet.marked_for_deletion);
-  updateBullets(bullets, deltaTime);
+    //update and draw coin objects
+    coins = coins.filter((coin) => !coin.marked_for_deletion);
 
-  // update and draw game score, lives, other stats
-  gameStats.draw(ctx);
+    coins.forEach((coin, index) => {
+      if (detectCollision(coin, clam)) {
+        coin.marked_for_deletion = true;
+        gameStats.dollars = gameStats.dollars + coin.value;
+      }
+      coin.draw(ctx);
+    });
 
-  // update and draw clam character
-  clam.update(deltaTime);
-  clam.draw(ctx);
+    // update and draw bullets
+    bullets = bullets.filter((bullet) => !bullet.marked_for_deletion);
+    updateBullets(bullets, deltaTime);
+
+    // update and draw game score, lives, other stats
+    gameStats.draw(ctx);
+
+    // update and draw clam character
+    clam.update(deltaTime);
+    clam.draw(ctx);
+  }
 
   requestAnimationFrame(gameLoop);
 }
@@ -100,15 +104,21 @@ function initializeTimer() {
   if (gameStats.timerOn === false) {
     var startDayTimer = setInterval(incrementTime, gameStats.advance_interval);
     function incrementTime() {
-      gameStats.start_min = gameStats.start_min + 10;
-      // Make 60 minutes = +1 hour
-      if (gameStats.start_min >= 60) {
-        gameStats.start_hr++;
-        gameStats.start_min = 0;
+      gameStats.business_day_timer--;
+      // If timer ends, end business day functions
+      if (gameStats.business_day_timer <= 0) {
+        endBusinessDay();
+        kitchen.cooking = false;
+        clearInterval(startDayTimer);
       }
     }
     gameStats.timerOn = true;
   }
+}
+
+function endBusinessDay() {
+  // Perform game actions required when workday is over
+  gameStats.business_day_active = false;
 }
 
 function checkClamGettingFood() {
