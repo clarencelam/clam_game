@@ -46,6 +46,8 @@ function gameLoop(timestamp) {
 
   // Perform the kitchen cooking loop
   initializeKitchen(kitchen);
+  initializeTimer();
+
   // update and draw kitchen objects
   kitchen.update();
   kitchen.draw(ctx);
@@ -90,6 +92,22 @@ export function spacebarTrigger() {
   if (clam.bullets_held.length > 0) {
     bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
     clam.bullets_held.shift(); // removes last item in array
+  }
+}
+
+function initializeTimer() {
+  // if day timer is not on, turn on
+  if (gameStats.timerOn === false) {
+    var startDayTimer = setInterval(incrementTime, gameStats.advance_interval);
+    function incrementTime() {
+      gameStats.start_min = gameStats.start_min + 10;
+      // Make 60 minutes = +1 hour
+      if (gameStats.start_min >= 60) {
+        gameStats.start_hr++;
+        gameStats.start_min = 0;
+      }
+    }
+    gameStats.timerOn = true;
   }
 }
 
