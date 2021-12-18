@@ -14,6 +14,7 @@ import {
   eatFood,
   randomIntFromInterval
 } from "/src/gameMechanics";
+import EndDayPopup from "./endDayPopup";
 
 // -------------- INITIALIZE GAME OBJECTS ----------------
 const GAME_WIDTH = 1200;
@@ -28,6 +29,7 @@ let background = document.getElementById("background");
 let clam = new Clam(GAME_WIDTH, GAME_HEIGHT);
 let bullets = [];
 let coins = [];
+let popups = [];
 let customers = [];
 let lastTime = 0;
 let gameStats = new GameStats();
@@ -67,7 +69,9 @@ function gameLoop(timestamp) {
     coins.forEach((coin, index) => {
       if (detectCollision(coin, clam)) {
         coin.marked_for_deletion = true;
+        // Accrue gameStats
         gameStats.dollars = gameStats.dollars + coin.value;
+        gameStats.days_dollars = gameStats.days_dollars + coin.value;
       }
       coin.draw(ctx);
     });
@@ -78,6 +82,10 @@ function gameLoop(timestamp) {
 
     // update and draw game score, lives, other stats
     gameStats.draw(ctx);
+
+    popups.forEach((popup) => {
+      popup.draw(ctx);
+    });
 
     // update and draw clam character
     clam.update(deltaTime);
@@ -100,7 +108,7 @@ export function spacebarTrigger() {
 }
 
 function initializeTimer() {
-  // if day timer is not on, turn on
+  // if day timer is not on, turn on, and count down. If 0, end day
   if (gameStats.timerOn === false) {
     var startDayTimer = setInterval(incrementTime, gameStats.advance_interval);
     function incrementTime() {
@@ -108,7 +116,6 @@ function initializeTimer() {
       // If timer ends, end business day functions
       if (gameStats.business_day_timer <= 0) {
         endBusinessDay();
-        kitchen.cooking = false;
         clearInterval(startDayTimer);
       }
     }
@@ -117,8 +124,20 @@ function initializeTimer() {
 }
 
 function endBusinessDay() {
-  // Perform game actions required when workday is over
+  // END OF BUSINESS DAY BEHAVIORS
   gameStats.business_day_active = false;
+  kitchen.cooking = false;
+  console.log(gameStats.days_fedcusts);
+  console.log(gameStats.days_dollars);
+  popups.push(
+    new EndDayPopup(
+      GAME_WIDTH / 2,
+      GAME_HEIGHT / 2,
+      gameStats.days_fedcusts,
+      gameStats.days_dollars
+    )
+  );
+  gameStats.resetDailyStats();
 }
 
 function checkClamGettingFood() {
@@ -232,6 +251,8 @@ function custEatingFood(bullet, customer, coins) {
 
     if (customer.hunger_points <= 0) {
       clearInterval(eatTime);
+      // accrue GameStats stats
+      gameStats.days_fedcusts++;
     }
   }
 }
