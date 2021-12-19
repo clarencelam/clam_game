@@ -1,7 +1,8 @@
 export default class GameStats {
   constructor() {
-    this.game_active = true;
-    this.business_day_active = true;
+    this.level_start_window = true;
+    this.game_active = false;
+    this.business_day_active = false;
 
     this.dollars = 0;
     this.day = 1;
@@ -13,6 +14,7 @@ export default class GameStats {
 
     this.days_dollars = 0;
     this.days_fedcusts = 0;
+    this.days_tax = 10;
   }
 
   resetDailyStats() {

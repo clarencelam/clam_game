@@ -15,6 +15,7 @@ import {
   randomIntFromInterval
 } from "/src/gameMechanics";
 import EndDayPopup from "./endDayPopup";
+import BeginDayPopup from "./beginDayPopup";
 
 // -------------- INITIALIZE GAME OBJECTS ----------------
 const GAME_WIDTH = 1200;
@@ -44,7 +45,28 @@ function gameLoop(timestamp) {
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
+  if (gameStats.level_start_window === true) {
+    gameStats.game_active = false;
+    gameStats.business_day_active = false;
+    popups.push(
+      new BeginDayPopup(
+        GAME_WIDTH,
+        GAME_HEIGHT,
+        gameStats.day,
+        gameStats.business_day_timer,
+        gameStats.days_tax
+      )
+    );
+    popups.forEach((popup) => {
+      popup.draw(ctx);
+    });
+  }
+
   if (gameStats.game_active === true) {
+    // update and draw kitchen objects
+    kitchen.update();
+    kitchen.draw(ctx);
+
     if (gameStats.business_day_active === true) {
       // Game actions only to occur if business day is active
 
@@ -57,9 +79,6 @@ function gameLoop(timestamp) {
       updateCustomers(customers, deltaTime);
     }
 
-    // update and draw kitchen objects
-    kitchen.update();
-    kitchen.draw(ctx);
     // check if clam is over a food
     checkClamGettingFood();
 
@@ -80,16 +99,17 @@ function gameLoop(timestamp) {
     bullets = bullets.filter((bullet) => !bullet.marked_for_deletion);
     updateBullets(bullets, deltaTime);
 
-    // update and draw game score, lives, other stats
-    gameStats.draw(ctx);
+    // update and draw clam character
+    clam.update(deltaTime);
+    clam.draw(ctx);
 
+    // draw popup boxes
     popups.forEach((popup) => {
       popup.draw(ctx);
     });
 
-    // update and draw clam character
-    clam.update(deltaTime);
-    clam.draw(ctx);
+    // update and draw game score, lives, other stats
+    gameStats.draw(ctx);
   }
 
   requestAnimationFrame(gameLoop);
@@ -100,11 +120,20 @@ function gameLoop(timestamp) {
 export function spacebarTrigger() {
   // Perform activites for when spacebar is pressed
 
+  // if levelstart popup window is present, pressing space bar will start level
+  if (gameStats.level_start_window === true) {
+    startLevel();
+  }
+
   // if clam bullet length > 0, fire bullet
   if (clam.bullets_held.length > 0) {
     bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
     clam.bullets_held.shift(); // removes last item in array
   }
+}
+
+function startLevel() {
+  //actions to take when level is started
 }
 
 function initializeTimer() {
