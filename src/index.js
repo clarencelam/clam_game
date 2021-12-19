@@ -45,10 +45,14 @@ function gameLoop(timestamp) {
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
+  // --------------- IF GAME IS ACTIVE --------------------------
+
   if (gameStats.game_active === true) {
     // update and draw kitchen objects
     kitchen.update();
     kitchen.draw(ctx);
+
+    // --------------- IF BUSINESS DAY IS ACTIVE --------------------------
 
     if (gameStats.business_day_active === true) {
       // Game actions only to occur if business day is active
@@ -61,6 +65,7 @@ function gameLoop(timestamp) {
       customers = customers.filter((customer) => !customer.markfordelete);
       updateCustomers(customers, deltaTime);
     }
+    // --------------- END IF BUSINESS DAY IS ACTIVE --------------------------
 
     // check if clam is over a food
     checkClamGettingFood();
@@ -102,6 +107,7 @@ function gameLoop(timestamp) {
     // update and draw game score, lives, other stats
     gameStats.draw(ctx);
   }
+  // --------------- END OF (IF GAME IS ACTIVE) --------------------------
 
   requestAnimationFrame(gameLoop);
 }
@@ -113,7 +119,6 @@ export function spacebarTrigger() {
 
   // if levelstart popup window is present, pressing space bar will start level
   if (gameStats.show_lvlstart_window === true) {
-    // if clam
     startLevel();
   }
 
@@ -126,6 +131,10 @@ export function spacebarTrigger() {
 
 function startLevel() {
   //actions to take when level is started
+  gameStats.business_day_active = true;
+  gameStats.show_lvlstart_window = false;
+  gameStats.triggered_lvlstart_window = false;
+  popups = [];
 }
 
 function initializeLevelStartPopup() {

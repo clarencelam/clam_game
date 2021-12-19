@@ -40,12 +40,13 @@ export default class BeginDayPopup {
 
     // draw outline for box
     ctx.fillStyle = this.box_outline_color;
-    ctx.rect(
+    ctx.strokeRect(
       this.screen_centered_x,
       this.screen_centered_y,
       this.width,
       this.height
     );
+
     ctx.font = this.default_font;
     ctx.fillText(
       this.box_title,
