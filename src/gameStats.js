@@ -1,7 +1,8 @@
 export default class GameStats {
   constructor() {
-    this.level_start_window = true;
-    this.game_active = false;
+    this.show_lvlstart_window = true;
+    this.triggered_lvlstart_window = false;
+    this.game_active = true;
     this.business_day_active = false;
 
     this.dollars = 0;

@@ -47,8 +47,6 @@ export default class Kitchen {
       this.number_pos_x,
       this.number_pos_y
     );
-    ctx.rect(this.x_pos, this.y_pos, this.size, this.size);
-    ctx.stroke();
 
     this.cooked_food.forEach((food, index) => {
       food.draw(ctx);

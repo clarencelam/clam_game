@@ -45,23 +45,6 @@ function gameLoop(timestamp) {
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-  if (gameStats.level_start_window === true) {
-    gameStats.game_active = false;
-    gameStats.business_day_active = false;
-    popups.push(
-      new BeginDayPopup(
-        GAME_WIDTH,
-        GAME_HEIGHT,
-        gameStats.day,
-        gameStats.business_day_timer,
-        gameStats.days_tax
-      )
-    );
-    popups.forEach((popup) => {
-      popup.draw(ctx);
-    });
-  }
-
   if (gameStats.game_active === true) {
     // update and draw kitchen objects
     kitchen.update();
@@ -95,6 +78,14 @@ function gameLoop(timestamp) {
       coin.draw(ctx);
     });
 
+    if (
+      // if level start window is active and has not been triggered, add the start window popup to popups array
+      gameStats.show_lvlstart_window === true &&
+      gameStats.triggered_lvlstart_window === false
+    ) {
+      initializeLevelStartPopup();
+    }
+
     // update and draw bullets
     bullets = bullets.filter((bullet) => !bullet.marked_for_deletion);
     updateBullets(bullets, deltaTime);
@@ -121,7 +112,8 @@ export function spacebarTrigger() {
   // Perform activites for when spacebar is pressed
 
   // if levelstart popup window is present, pressing space bar will start level
-  if (gameStats.level_start_window === true) {
+  if (gameStats.show_lvlstart_window === true) {
+    // if clam
     startLevel();
   }
 
@@ -134,6 +126,21 @@ export function spacebarTrigger() {
 
 function startLevel() {
   //actions to take when level is started
+}
+
+function initializeLevelStartPopup() {
+  // actions to take when level is started but the popup is not initialized
+  gameStats.triggered_lvlstart_window = true;
+  gameStats.business_day_active = false;
+  popups.push(
+    new BeginDayPopup(
+      GAME_WIDTH,
+      GAME_HEIGHT,
+      gameStats.day,
+      gameStats.business_day_timer,
+      gameStats.days_tax
+    )
+  );
 }
 
 function initializeTimer() {

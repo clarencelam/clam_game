@@ -3,16 +3,14 @@ export default class BeginDayPopup {
   constructor(gamewidth, gameheight, daynumber, timerlength, taxamount) {
     this.gamewidth = gamewidth;
     this.gameheight = gameheight;
-    this.height = 500;
+    this.height = 200;
     this.width = 800;
     this.day_number = daynumber;
     this.timer_length = timerlength;
     this.tax_amount = taxamount;
 
-    //this.screen_centered_x = this.gamewidth / 2 - this.width / 2;
-    //this.screen_centered_y = this.gameheight / 2 - this.height / 2;
-    this.screen_centered_x = 100;
-    this.screen_centered_y = 100;
+    this.screen_centered_x = this.gamewidth / 2 - this.width / 2;
+    this.screen_centered_y = this.gameheight / 2 - this.height;
 
     this.box_background_color = "#B3EFF7";
     this.box_outline_color = "black";
@@ -24,6 +22,7 @@ export default class BeginDayPopup {
       "Collect food from your food truck and feed as many customers as you can";
     this.box_line3 = "Make sure you make enough money to pay the day's tax";
     this.box_line4 = "TAX OWED AT END OF DAY: " + this.tax_amount + " COINS";
+    this.box_line5 = "Press SPACEBAR to begin work day";
   }
 
   update() {}
@@ -73,6 +72,11 @@ export default class BeginDayPopup {
       this.box_line4,
       this.screen_centered_x + 10,
       this.screen_centered_y + 150
+    );
+    ctx.fillText(
+      this.box_line5,
+      this.screen_centered_x + 450,
+      this.screen_centered_y + 180
     );
 
     console.log("tried to draw begin day objects");
