@@ -24,7 +24,7 @@ export default class Kitchen {
     this.cook_time = 2000;
   }
 
-  update() {
+  update(deltaTime) {
     this.cooked_food = this.cooked_food.filter(
       (bullet) => !bullet.marked_for_deletion
     );

@@ -11,7 +11,7 @@ export default class FoodSprite {
     this.marked_for_deletion = false;
   }
 
-  update(clam_x, clam_y, direction, index) {
+  update(clam_x, clam_y, direction, index, deltaTime) {
     // update sprite to follow clam object
     if (direction === 1) {
       this.x_pos = clam_x + 15 + this.size / 2 - (index * this.size) / 3;

@@ -32,83 +32,89 @@ let bullets = [];
 let coins = [];
 let popups = [];
 let customers = [];
-let lastTime = 0;
 let gameStats = new GameStats();
 let kitchen = new Kitchen(GAME_HEIGHT, GAME_WIDTH);
 
 new InputHandler(clam);
 
+let lastTime = 0;
+let fpsInterval = 10; // one frame per X milliseconds
+
 // --------------- MAIN GAMELOOP --------------------------
 function gameLoop(timestamp) {
   let deltaTime = timestamp - lastTime;
-  lastTime = timestamp;
+  if (deltaTime < fpsInterval) {
+    // fps interval is not yet met-- do nothing;
+  } else {
+    // fps interval is met -- update game frames
+    lastTime = timestamp;
 
-  ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-  // --------------- IF GAME IS ACTIVE --------------------------
+    // --------------- IF GAME IS ACTIVE --------------------------
 
-  if (gameStats.game_active === true) {
-    // update and draw kitchen objects
-    kitchen.update();
-    kitchen.draw(ctx);
+    if (gameStats.game_active === true) {
+      // update and draw kitchen objects
+      kitchen.update();
+      kitchen.draw(ctx);
 
-    // --------------- IF BUSINESS DAY IS ACTIVE --------------------------
-
-    if (gameStats.business_day_active === true) {
-      // Game actions only to occur if business day is active
-
-      // Perform the kitchen cooking loop
-      initializeKitchen(kitchen);
-      initializeTimer();
-
-      // update and draw customer objects
-      customers = customers.filter((customer) => !customer.markfordelete);
-      updateCustomers(customers, deltaTime);
-    }
-    // --------------- END IF BUSINESS DAY IS ACTIVE --------------------------
-
-    // check if clam is over a food
-    checkClamGettingFood();
-
-    //update and draw coin objects
-    coins = coins.filter((coin) => !coin.marked_for_deletion);
-
-    coins.forEach((coin, index) => {
-      if (detectCollision(coin, clam)) {
-        coin.marked_for_deletion = true;
-        // Accrue gameStats
-        gameStats.dollars = gameStats.dollars + coin.value;
-        gameStats.days_dollars = gameStats.days_dollars + coin.value;
+      if (
+        // if level start window is active and has not been triggered, add the start window popup to popups array
+        gameStats.show_lvlstart_window === true &&
+        gameStats.triggered_lvlstart_window === false
+      ) {
+        initializeLevelStartPopup();
       }
-      coin.draw(ctx);
-    });
 
-    if (
-      // if level start window is active and has not been triggered, add the start window popup to popups array
-      gameStats.show_lvlstart_window === true &&
-      gameStats.triggered_lvlstart_window === false
-    ) {
-      initializeLevelStartPopup();
+      // --------------- IF BUSINESS DAY IS ACTIVE --------------------------
+
+      if (gameStats.business_day_active === true) {
+        // Game actions only to occur if business day is active
+
+        // Perform the kitchen cooking loop
+        initializeKitchen(kitchen);
+        initializeTimer();
+
+        // update and draw customer objects
+        customers = customers.filter((customer) => !customer.markfordelete);
+        updateCustomers(customers, deltaTime);
+      }
+      // --------------- END IF BUSINESS DAY IS ACTIVE --------------------------
+
+      // check if clam is over a food
+      checkClamGettingFood();
+
+      //update and draw coin objects
+      coins = coins.filter((coin) => !coin.marked_for_deletion);
+
+      coins.forEach((coin, index) => {
+        if (detectCollision(coin, clam)) {
+          coin.marked_for_deletion = true;
+          // Accrue gameStats
+          gameStats.dollars = gameStats.dollars + coin.value;
+          gameStats.days_dollars = gameStats.days_dollars + coin.value;
+        }
+        coin.draw(ctx);
+      });
+
+      // update and draw bullets
+      bullets = bullets.filter((bullet) => !bullet.marked_for_deletion);
+      updateBullets(bullets, deltaTime);
+
+      // update and draw clam character
+      clam.update(deltaTime);
+      clam.draw(ctx);
+
+      // draw popup boxes
+      popups.forEach((popup) => {
+        popup.draw(ctx);
+      });
+
+      // update and draw game score, lives, other stats
+      gameStats.draw(ctx);
     }
-
-    // update and draw bullets
-    bullets = bullets.filter((bullet) => !bullet.marked_for_deletion);
-    updateBullets(bullets, deltaTime);
-
-    // update and draw clam character
-    clam.update(deltaTime);
-    clam.draw(ctx);
-
-    // draw popup boxes
-    popups.forEach((popup) => {
-      popup.draw(ctx);
-    });
-
-    // update and draw game score, lives, other stats
-    gameStats.draw(ctx);
+    // --------------- END OF (IF GAME IS ACTIVE) --------------------------
   }
-  // --------------- END OF (IF GAME IS ACTIVE) --------------------------
-
   requestAnimationFrame(gameLoop);
 }
 
@@ -131,10 +137,10 @@ export function spacebarTrigger() {
 
 function startLevel() {
   //actions to take when level is started
-  gameStats.business_day_active = true;
   gameStats.show_lvlstart_window = false;
   gameStats.triggered_lvlstart_window = false;
   popups = [];
+  gameStats.business_day_active = true;
 }
 
 function initializeLevelStartPopup() {
