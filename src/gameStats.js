@@ -2,6 +2,7 @@ export default class GameStats {
   constructor() {
     this.show_lvlstart_window = true;
     this.triggered_lvlstart_window = false;
+    this.show_lvlend_window = false;
     this.game_active = true;
     this.business_day_active = false;
 
@@ -9,7 +10,7 @@ export default class GameStats {
     this.day = 1;
 
     this.timerOn = false;
-    this.business_day_timer = 15;
+    this.business_day_timer = 30;
 
     this.advance_interval = 1000; //one second = two minute passes in timer
 

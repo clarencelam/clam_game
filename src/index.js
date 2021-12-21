@@ -55,6 +55,8 @@ function gameLoop(timestamp) {
 
     if (gameStats.game_active === true) {
       // update and draw kitchen objects
+      ctx.drawImage(background, 0, 0, GAME_WIDTH, GAME_HEIGHT);
+
       kitchen.update();
       kitchen.draw(ctx);
 
@@ -125,7 +127,12 @@ export function spacebarTrigger() {
 
   // if levelstart popup window is present, pressing space bar will start level
   if (gameStats.show_lvlstart_window === true) {
-    startLevel();
+    startBusinessDay();
+  }
+  if (gameStats.show_lvlend_window === true) {
+    popups = [];
+    gameStats.show_lvlend_window = false;
+    gameStats.show_lvlstart_window = true;
   }
 
   // if clam bullet length > 0, fire bullet
@@ -135,7 +142,7 @@ export function spacebarTrigger() {
   }
 }
 
-function startLevel() {
+function startBusinessDay() {
   //actions to take when level is started
   gameStats.show_lvlstart_window = false;
   gameStats.triggered_lvlstart_window = false;
@@ -189,6 +196,7 @@ function endBusinessDay() {
     )
   );
   gameStats.resetDailyStats();
+  gameStats.show_lvlend_window = true;
 }
 
 function checkClamGettingFood() {
@@ -270,8 +278,8 @@ function dropCoin(customer, coins) {
   // Function to make customer drop coin
   coins.push(
     new Coin(
-      customer.x_pos + customer.size / 2,
-      customer.y_pos + customer.size / 2
+      customer.x_pos + customer.width / 2,
+      customer.y_pos + customer.height / 2
     )
   );
   customer.done_dropping_coin = true;

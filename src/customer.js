@@ -3,10 +3,13 @@ export default class Customer {
   // class to represent the cusomter fish that player will feed
 
   constructor(gameHeight, gameWidth) {
-    this.img_frame1 = document.getElementById("fish_1");
-    this.img_frame2 = document.getElementById("fish_2");
-    this.size = 80;
-    this.speed = 4;
+    this.img_frame1 = document.getElementById("cust_baseA");
+    this.img_frame2 = document.getElementById("cust_baseB");
+
+    this.height = 25 + 8;
+    this.width = 37 + 8;
+
+    this.speed = 3;
     this.return_speed = 4;
     this.hunger_points = 10;
     this.markfordelete = false;
@@ -20,7 +23,7 @@ export default class Customer {
     const rndInt = randomIntFromInterval(this.min, this.max);
 
     if (this.rndBinary === 1) {
-      this.x_pos = gameWidth - this.size; // Start on right side
+      this.x_pos = gameWidth - this.width; // Start on right side
     } else {
       this.x_pos = 0; // Start on left side
     }
@@ -36,11 +39,6 @@ export default class Customer {
     //CUSTOMER STATES
     this.walking = true;
     this.stopped = false;
-
-    // variable to declare where the customer will stop & turn around
-    this.x_walk_threshold = this.size * 2;
-    // time waited after customer gets to walk threshold
-    this.wait_time = 150;
   }
 
   doneEating() {
@@ -81,16 +79,16 @@ export default class Customer {
 
     if (this.rndBinary === 2) {
       //facing right
-      ctx.translate(this.x_pos + this.size, this.y_pos);
+      ctx.translate(this.x_pos + this.width, this.y_pos);
       // scaleX by -1; this "trick" flips horizontally
       ctx.scale(-1, 1);
       // draw the img
       // no need for x,y since we've already translated
-      ctx.drawImage(this.img, 0, 0, this.size, this.size);
+      ctx.drawImage(this.img, 0, 0, this.width, this.height);
       // always clean up -- reset transformations to default
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     } else {
-      ctx.drawImage(this.img, this.x_pos, this.y_pos, this.size, this.size);
+      ctx.drawImage(this.img, this.x_pos, this.y_pos, this.width, this.height);
     }
   }
 
@@ -98,7 +96,7 @@ export default class Customer {
     // Delete customers when they cross the screen & exit
     if (
       (this.x_pos > this.GAMEWIDTH && this.x_direction === 1) ||
-      (this.x_pos + this.size < 0 && this.x_direction === -1)
+      (this.x_pos + this.width < 0 && this.x_direction === -1)
     ) {
       this.markfordelete = true;
     }

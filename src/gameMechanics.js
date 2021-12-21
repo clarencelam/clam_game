@@ -27,17 +27,18 @@ export function detectOverlapCollision(bullet, object) {
   let bottomOfBullet = bullet.y_pos + bullet.size;
   let leftOfBullet = bullet.x_pos;
   let rightOfBullet = bullet.x_pos + bullet.size;
+  let middleOfBullet = bullet.x_pos + bullet.size / 2;
 
   let topOfObject = object.y_pos;
-  let bottomOfObject = object.y_pos + object.size;
+  let bottomOfObject = object.y_pos + object.height;
   let leftOfObject = object.x_pos;
-  let rightOfObject = object.x_pos + object.size;
+  let rightOfObject = object.x_pos + object.width;
 
   if (
-    bottomOfBullet < bottomOfObject + object.size / 2 && // bottom of bullet is under the top of obj
-    topOfBullet > topOfObject - object.size / 2 &&
-    leftOfBullet > leftOfObject &&
-    rightOfBullet < rightOfObject
+    bottomOfBullet > topOfObject && // bottom of bullet is under the top of obj
+    topOfBullet < bottomOfObject &&
+    middleOfBullet > leftOfObject &&
+    middleOfBullet < rightOfObject
   ) {
     return true;
   } else {
