@@ -132,11 +132,23 @@ export function spacebarTrigger() {
     gameStats.show_lvlstart_window = false;
   }
 
+  if (gameStats.taxPaidSuccessfully === true) {
+    // if tax is paid and spacebar is pressed, proceed to night time
+    startNightTime();
+  }
+
   if (gameStats.night_time_active === true) {
     // If nighttime is active and spacebar is pressed, go to next day
     gameStats.show_lvlstart_window = true;
     gameStats.night_time_active = false;
     console.log("close night time, trigger next day");
+  }
+
+  if (gameStats.dollars < 0) {
+    // If user is on fail-game popup window "press spacebar to restart"
+    hitBankrupcy();
+    popups = [];
+    gameStats.timeToRestart = false;
   }
 
   if (gameStats.show_lvlend_window === true) {
@@ -170,7 +182,6 @@ function startNightTime() {
 
 function payTax() {
   // Pay tax after business day ends, continue or end game
-  var passLevel = 1; // 1 = pass
   gameStats.dollars = gameStats.dollars - gameStats.days_tax;
   if (gameStats.dollars >= 0) {
     var msg1 =
@@ -178,41 +189,20 @@ function payTax() {
       gameStats.dollars +
       "coins";
     var msg2 = "Press SPACEBAR to continue to night time";
+    popups.push(new TwoLinePopup(GAME_WIDTH / 2, GAME_HEIGHT / 2, msg1, msg2));
+    gameStats.taxPaidSuccessfully = true; // flag for spacebar action
   } else {
     var msg1 =
       "You were not able to pay the day's tax, and have gone bankrupt.";
-    var msg2 = "Press SPACEBAR to start a new game.";
-    var passLevel = 0;
+    var msg2 = "Press SPACEBAR to continue.";
+    popups.push(new TwoLinePopup(GAME_WIDTH / 2, GAME_HEIGHT / 2, msg1, msg2));
   }
-  popups.push(new TwoLinePopup(GAME_WIDTH / 2, GAME_HEIGHT / 2, msg1, msg2));
-
-  // Once customer presses spacebar
-  /*
-  var donepressing = false;
-  document.body.onkeyup = function (pressed) {
-    if (pressed.keyCode === 32 && donepressing === false) {
-      // PLAYER PASSES LEVEL
-      if (passLevel === 1) {
-        taxPaidSuccessfully();
-        donepressing = true;
-      } else {
-        // TAX MADE PLAYER HIT BANKRUPCY
-        hitBankrupcy();
-        popups = [];
-        donepressing = true;
-      }
-      console.log("onkeyup thing");
-    }
-  };
-  */
-}
-
-function taxPaidSuccessfully() {
-  startNightTime();
 }
 
 function hitBankrupcy() {
   gameStats.gameOver();
+  gameStats.game_active = true;
+  gameStats.show_lvlstart_window = true;
   console.log("hitBankrupcy() triggered, game over");
 }
 

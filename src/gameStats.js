@@ -6,6 +6,9 @@ export default class GameStats {
     this.game_active = true;
     this.business_day_active = false;
     this.night_time_active = false;
+    this.timeToRestart = false;
+
+    this.taxPaidSuccessfully = false;
 
     this.dollars = 0;
     this.day = 1;
@@ -32,7 +35,7 @@ export default class GameStats {
     this.days_dollars = 0;
     this.days_fedcusts = 0;
     this.timerOn = false;
-    this.business_day_timer = 30;
+    this.business_day_timer = 10;
   }
 
   incrementLevel() {
