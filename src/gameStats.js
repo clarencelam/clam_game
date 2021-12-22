@@ -10,18 +10,28 @@ export default class GameStats {
     this.day = 1;
 
     this.timerOn = false;
-    this.business_day_timer = 30;
+    this.business_day_timer = 15;
 
     this.advance_interval = 1000; //one second = two minute passes in timer
 
     this.days_dollars = 0;
     this.days_fedcusts = 0;
-    this.days_tax = 10;
+    this.days_tax = 2;
   }
 
-  resetDailyStats() {
+  resetLevel() {
+    // perform the reset of objects needed to go to another level
     this.days_dollars = 0;
     this.days_fedcusts = 0;
+    this.timerOn = false;
+    this.business_day_timer = 30;
+    this.show_lvlend_window = true;
+  }
+
+  incrementLevel() {
+    // Increment objects to make the next level harder
+    this.days_tax = this.days_tax + 1;
+    this.day++;
   }
 
   update() {}

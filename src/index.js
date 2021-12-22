@@ -195,8 +195,8 @@ function endBusinessDay() {
       gameStats.days_dollars
     )
   );
-  gameStats.resetDailyStats();
-  gameStats.show_lvlend_window = true;
+  gameStats.resetLevel();
+  gameStats.incrementLevel();
 }
 
 function checkClamGettingFood() {
