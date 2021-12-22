@@ -128,11 +128,23 @@ export function spacebarTrigger() {
   // if levelstart popup window is present, pressing space bar will start level
   if (gameStats.show_lvlstart_window === true) {
     startBusinessDay();
+    gameStats.show_lvlstart_window = false;
   }
-  if (gameStats.show_lvlend_window === true) {
-    popups = [];
-    gameStats.show_lvlend_window = false;
+
+  if (gameStats.night_time_active === true) {
+    // If nighttime is active and spacebar is pressed, go to next day
     gameStats.show_lvlstart_window = true;
+    gameStats.night_time_active = false;
+    console.log("close night time, trigger next day");
+  }
+
+  if (gameStats.show_lvlend_window === true) {
+    // If level end window is showing and spacebar is pressed, clear popups and start nightime
+    gameStats.show_lvlend_window = false;
+    popups = [];
+    console.log("close level end window, activate night");
+    console.log(gameStats.show_lvlstart_window);
+    startNightTime();
   }
 
   // if clam bullet length > 0, fire bullet
@@ -144,16 +156,20 @@ export function spacebarTrigger() {
 
 function startBusinessDay() {
   //actions to take when level is started
-  gameStats.show_lvlstart_window = false;
   gameStats.triggered_lvlstart_window = false;
   popups = [];
   gameStats.business_day_active = true;
 }
 
+function startNightTime() {
+  // actions to take when night time is started
+  popups = [];
+  gameStats.night_time_active = true;
+}
+
 function initializeLevelStartPopup() {
   // actions to take when level is started but the popup is not initialized
   gameStats.triggered_lvlstart_window = true;
-  gameStats.business_day_active = false;
   popups.push(
     new BeginDayPopup(
       GAME_WIDTH,
@@ -185,16 +201,16 @@ function endBusinessDay() {
   // END OF BUSINESS DAY BEHAVIORS
   gameStats.business_day_active = false;
   kitchen.cooking = false;
-  console.log(gameStats.days_fedcusts);
-  console.log(gameStats.days_dollars);
   popups.push(
     new EndDayPopup(
       GAME_WIDTH / 2,
       GAME_HEIGHT / 2,
       gameStats.days_fedcusts,
-      gameStats.days_dollars
+      gameStats.days_dollars,
+      gameStats.days_tax
     )
   );
+  gameStats.show_lvlend_window = true;
   gameStats.resetLevel();
   gameStats.incrementLevel();
 }

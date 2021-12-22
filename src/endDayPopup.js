@@ -1,13 +1,14 @@
 export default class EndDayPopup {
   // Class to represent the popup at the end of a level
-  constructor(box_x, box_y, numFed, numCoins) {
+  constructor(box_x, box_y, numFed, numCoins, tax) {
     this.x_pos = box_x;
     this.y_pos = box_y;
-    this.height = 120;
-    this.width = 300;
+    this.height = 180;
+    this.width = 350;
     this.box_title = "BUSINESS DAY OVER";
     this.numFed = numFed;
     this.numCoins = numCoins;
+    this.tax = tax;
 
     this.screen_centered_x = this.x_pos - this.width / 2;
     this.screen_centered_y = this.y_pos - this.height / 2;
@@ -54,6 +55,16 @@ export default class EndDayPopup {
       "Dollars Earned: " + this.numCoins,
       this.screen_centered_x + 10,
       this.screen_centered_y + 90
+    );
+    ctx.fillText(
+      "Today's tax is " + this.tax,
+      this.screen_centered_x + 10,
+      this.screen_centered_y + 120
+    );
+    ctx.fillText(
+      "Press SPACEBAR to pay the day's tax.",
+      this.screen_centered_x + 10,
+      this.screen_centered_y + 150
     );
   }
 }
