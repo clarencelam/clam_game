@@ -16,6 +16,7 @@ import {
 } from "/src/gameMechanics";
 import EndDayPopup from "./endDayPopup";
 import BeginDayPopup from "./beginDayPopup";
+import TwoLinePopup from "./twoLinePopup";
 
 // -------------- INITIALIZE GAME OBJECTS ----------------
 const GAME_WIDTH = 1200;
@@ -144,7 +145,7 @@ export function spacebarTrigger() {
     popups = [];
     console.log("close level end window, activate night");
     console.log(gameStats.show_lvlstart_window);
-    startNightTime();
+    payTax();
   }
 
   // if clam bullet length > 0, fire bullet
@@ -165,6 +166,23 @@ function startNightTime() {
   // actions to take when night time is started
   popups = [];
   gameStats.night_time_active = true;
+}
+
+function payTax() {
+  // Pay tax after business day ends, continue or end game
+  gameStats.dollars = gameStats.dollars - gameStats.days_tax;
+  if (gameStats.dollars >= 0) {
+    var msg1 =
+      "You successfully paid the day's tax & now have" +
+      gameStats.dollars +
+      "coins";
+    var msg2 = "Press SPACEBAR to continue to night time";
+  } else {
+    var msg1 =
+      "You were not able to pay the day's tax, and have gone bankrupt.";
+    var msg2 = "Press SPACEBAR to start a new game.";
+  }
+  popups.push(new TwoLinePopup(GAME_WIDTH / 2, GAME_HEIGHT / 2, msg1, msg2));
 }
 
 function initializeLevelStartPopup() {
