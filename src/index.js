@@ -170,6 +170,7 @@ function startNightTime() {
 
 function payTax() {
   // Pay tax after business day ends, continue or end game
+  var passLevel = 1; // 1 = pass
   gameStats.dollars = gameStats.dollars - gameStats.days_tax;
   if (gameStats.dollars >= 0) {
     var msg1 =
@@ -181,8 +182,38 @@ function payTax() {
     var msg1 =
       "You were not able to pay the day's tax, and have gone bankrupt.";
     var msg2 = "Press SPACEBAR to start a new game.";
+    var passLevel = 0;
   }
   popups.push(new TwoLinePopup(GAME_WIDTH / 2, GAME_HEIGHT / 2, msg1, msg2));
+
+  // Once customer presses spacebar
+  /*
+  var donepressing = false;
+  document.body.onkeyup = function (pressed) {
+    if (pressed.keyCode === 32 && donepressing === false) {
+      // PLAYER PASSES LEVEL
+      if (passLevel === 1) {
+        taxPaidSuccessfully();
+        donepressing = true;
+      } else {
+        // TAX MADE PLAYER HIT BANKRUPCY
+        hitBankrupcy();
+        popups = [];
+        donepressing = true;
+      }
+      console.log("onkeyup thing");
+    }
+  };
+  */
+}
+
+function taxPaidSuccessfully() {
+  startNightTime();
+}
+
+function hitBankrupcy() {
+  gameStats.gameOver();
+  console.log("hitBankrupcy() triggered, game over");
 }
 
 function initializeLevelStartPopup() {

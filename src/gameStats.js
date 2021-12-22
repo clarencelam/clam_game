@@ -11,12 +11,19 @@ export default class GameStats {
     this.day = 1;
 
     this.timerOn = false;
-    this.business_day_timer = 15;
+    this.business_day_timer = 10;
 
     this.advance_interval = 1000; //one second = two minute passes in timer
 
     this.days_dollars = 0;
     this.days_fedcusts = 0;
+    this.days_tax = 2;
+  }
+
+  gameOver() {
+    // perform reset of objects needed to reset game
+    this.day = 1;
+    this.dollars = 0;
     this.days_tax = 2;
   }
 
