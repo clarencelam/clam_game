@@ -125,33 +125,53 @@ function gameLoop(timestamp) {
 
 export function spacebarTrigger() {
   // Perform activites for when spacebar is pressed
+  while (true) {
+    // if levelstart popup window is present, pressing space bar will start level
+    if (gameStats.show_lvlstart_window === true) {
+      startBusinessDay();
+      gameStats.show_lvlstart_window = false;
+      break;
+    }
 
-  // if levelstart popup window is present, pressing space bar will start level
-  if (gameStats.show_lvlstart_window === true) {
-    startBusinessDay();
-    gameStats.show_lvlstart_window = false;
-  }
+    if (gameStats.taxPaidSuccessfully === true) {
+      // if tax is paid and spacebar is pressed, proceed to night time
+      startNightTime();
+      gameStats.taxPaidSuccessfully = false;
+      break;
+    }
 
-  if (gameStats.night_time_active === true) {
-    // If nighttime is active and spacebar is pressed, go to next day
-    gameStats.show_lvlstart_window = true;
-    gameStats.night_time_active = false;
-    console.log("close night time, trigger next day");
-  }
+    if (gameStats.night_time_active === true) {
+      // If nighttime is active and spacebar is pressed, go to next day
+      gameStats.show_lvlstart_window = true;
+      gameStats.night_time_active = false;
+      console.log("close night time, trigger next day");
+      break;
+    }
 
-  if (gameStats.show_lvlend_window === true) {
-    // If level end window is showing and spacebar is pressed, clear popups and start nightime
-    gameStats.show_lvlend_window = false;
-    popups = [];
-    console.log("close level end window, activate night");
-    console.log(gameStats.show_lvlstart_window);
-    payTax();
-  }
+    if (gameStats.dollars < 0) {
+      // If user is on fail-game popup window "press spacebar to restart"
+      hitBankrupcy();
+      popups = [];
+      gameStats.timeToRestart = false;
+      break;
+    }
 
-  // if clam bullet length > 0, fire bullet
-  if (clam.bullets_held.length > 0) {
-    bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
-    clam.bullets_held.shift(); // removes last item in array
+    if (gameStats.show_lvlend_window === true) {
+      // If level end window is showing and spacebar is pressed, clear popups and start nightime
+      gameStats.show_lvlend_window = false;
+      popups = [];
+      console.log("close level end window, activate night");
+      console.log(gameStats.show_lvlstart_window);
+      payTax();
+      break;
+    }
+
+    // if clam bullet length > 0, fire bullet
+    if (clam.bullets_held.length > 0) {
+      bullets.push(new Food(clam.x_pos, clam.y_pos, clam.facing));
+      clam.bullets_held.shift(); // removes last item in array
+      break;
+    }
   }
 }
 
@@ -166,6 +186,7 @@ function startNightTime() {
   // actions to take when night time is started
   popups = [];
   gameStats.night_time_active = true;
+  gameStats.incrementLevel();
 }
 
 function payTax() {
@@ -173,16 +194,25 @@ function payTax() {
   gameStats.dollars = gameStats.dollars - gameStats.days_tax;
   if (gameStats.dollars >= 0) {
     var msg1 =
-      "You successfully paid the day's tax & now have" +
+      "You successfully paid the day's tax & now have " +
       gameStats.dollars +
-      "coins";
+      " coins";
     var msg2 = "Press SPACEBAR to continue to night time";
+    popups.push(new TwoLinePopup(GAME_WIDTH / 2, GAME_HEIGHT / 2, msg1, msg2));
+    gameStats.taxPaidSuccessfully = true; // flag for spacebar action
   } else {
     var msg1 =
       "You were not able to pay the day's tax, and have gone bankrupt.";
-    var msg2 = "Press SPACEBAR to start a new game.";
+    var msg2 = "Press SPACEBAR to continue.";
+    popups.push(new TwoLinePopup(GAME_WIDTH / 2, GAME_HEIGHT / 2, msg1, msg2));
   }
-  popups.push(new TwoLinePopup(GAME_WIDTH / 2, GAME_HEIGHT / 2, msg1, msg2));
+}
+
+function hitBankrupcy() {
+  gameStats.gameOver();
+  gameStats.game_active = true;
+  gameStats.show_lvlstart_window = true;
+  console.log("hitBankrupcy() triggered, game over");
 }
 
 function initializeLevelStartPopup() {
@@ -230,7 +260,6 @@ function endBusinessDay() {
   );
   gameStats.show_lvlend_window = true;
   gameStats.resetLevel();
-  gameStats.incrementLevel();
 }
 
 function checkClamGettingFood() {

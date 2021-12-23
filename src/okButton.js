@@ -1,10 +1,10 @@
 export default class TwoLinePopup {
   // Class to represent the popup at the end of a level
-  constructor(box_x, box_y, line1, line2) {
+  constructor(box_x, box_y, msg) {
     this.x_pos = box_x;
     this.y_pos = box_y;
-    this.height = 100;
-    this.width = 600;
+    this.height = 40;
+    this.width = 80;
 
     this.screen_centered_x = this.x_pos - this.width / 2;
     this.screen_centered_y = this.y_pos - this.height / 2;
@@ -13,8 +13,7 @@ export default class TwoLinePopup {
     this.box_outline_color = "black";
     this.default_font = "20px Tahoma";
 
-    this.message1 = line1;
-    this.message2 = line2;
+    this.msg = msg;
   }
 
   update() {}
@@ -42,14 +41,9 @@ export default class TwoLinePopup {
 
     // write tax message
     ctx.fillText(
-      this.message1,
+      this.msg,
       this.screen_centered_x + 10,
       this.screen_centered_y + 30
-    );
-    ctx.fillText(
-      this.message2,
-      this.screen_centered_x + 10,
-      this.screen_centered_y + 60
     );
   }
 }
