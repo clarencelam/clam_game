@@ -4,7 +4,7 @@ export default class TwoLinePopup {
     this.x_pos = box_x;
     this.y_pos = box_y;
     this.height = 100;
-    this.width = 500;
+    this.width = 600;
 
     this.screen_centered_x = this.x_pos - this.width / 2;
     this.screen_centered_y = this.y_pos - this.height / 2;
