@@ -1,3 +1,7 @@
+import Food from "/src/food";
+
+import { detectCollision, randomIntFromInterval } from "/src/gameMechanics";
+
 export default class Kitchen {
   // Class to represent the food objects used as bullets in the game
   constructor(gameHeight, gameWidth) {
@@ -13,14 +17,19 @@ export default class Kitchen {
 
     this.max_food = 10;
     this.cooked_food = [];
+    if (this.cooked_food === true) {
+      this.cooked_food_length = this.cooked_food.length;
+    } else {
+      this.cooked_food_length = 0;
+    }
 
     this.size = 500;
     this.cooked_food_size = 50;
 
     this.number_pos_x = 40;
     this.number_pos_y = gameHeight * (2 / 3);
-    this.cooking = false;
 
+    this.cooking = false;
     this.cook_time = 2000;
   }
 
@@ -32,6 +41,35 @@ export default class Kitchen {
     this.cooked_food.forEach((food, index) => {
       food.update();
     });
+
+    // intitialize cooking
+    if (this.cooking === false) {
+      var kitchenCooking = setInterval(cookFood, this.cook_time);
+      this.cooking = true;
+    }
+
+    // cookfood interval function
+    function cookFood() {
+      // Cook a food bullet into the kitchen if space is available
+
+      if (this.cooked_food_length < this.max_food) {
+        // Generate random y point within food truck window
+        this.rndBinary = randomIntFromInterval(
+          this.y_pos + this.truck_height * (2 / 5), // top of truck window
+          this.y_pos + this.truck_height * (3 / 5) - 5 // bottom of truck window
+        );
+
+        this.cooked_food.push(
+          // push new food item to food truck
+          new Food(this.x_pos + 30, this.rndBinary, 1, true, this.kitchen)
+        );
+      }
+
+      // if this.cooking is false, then stop the kitchen cooking interval loop
+      if (this.cooking === false) {
+        clearInterval(kitchenCooking);
+      }
+    }
   }
 
   draw(ctx) {

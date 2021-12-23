@@ -1,3 +1,5 @@
+import FoodSprite from "/src/foodSprite";
+
 export default class Clam {
   constructor(gameWidth, gameHeight) {
     this.img = document.getElementById("clam_default");
@@ -44,6 +46,10 @@ export default class Clam {
     this.bullets_held.forEach((bullet, index) => {
       bullet.update(this.x_pos, this.y_pos, this.facing, index);
     });
+  }
+
+  newBullet() {
+    this.bullets_held.push(new FoodSprite(this.x_pos, this.y_pos));
   }
 
   drawShootingTilt(ctx, deg) {
