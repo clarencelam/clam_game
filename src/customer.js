@@ -2,7 +2,7 @@ import { randomIntFromInterval, incrementalAction } from "/src/gameMechanics";
 export default class Customer {
   // class to represent the cusomter fish that player will feed
 
-  constructor(gameHeight, gameWidth) {
+  constructor(gameWidth, gameHeight) {
     this.img_frame1 = document.getElementById("cust_baseA");
     this.img_frame2 = document.getElementById("cust_baseB");
 

@@ -4,8 +4,12 @@ import InputHandler from "/src/input";
 import Kitchen from "/src/kitchen";
 import Customer from "/src/customer";
 import Coin from "/src/coin";
-
-import { detectCollision, detectOverlapCollision } from "/src/gameMechanics";
+import Food from "/src/food";
+import {
+  detectCollision,
+  detectOverlapCollision,
+  randomIntFromInterval
+} from "/src/gameMechanics";
 
 const GAMESTATE = {
   BUSINESSDAY: 0,
@@ -48,12 +52,16 @@ export default class GameManager {
       return;
     }
 
+    // ------------------ UPDATING W/ GAMESTATE = BUSINESSDAY ------------------
+
     if (this.gamestate === GAMESTATE.BUSINESSDAY) {
-      this.kitchen.update();
+      this.kitchen.update(deltaTime);
+      initializeCooking(this.kitchen);
+
       this.customers = this.customers.filter(
         (customer) => !customer.markfordelete
       );
-      this.updateCustomers(this.customers, deltaTime);
+      this.updateCustomers(deltaTime);
 
       this.checkClamGettingFood();
 
@@ -82,6 +90,7 @@ export default class GameManager {
   draw(ctx) {
     if (this.gamestate === GAMESTATE.BUSINESSDAY) {
       ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+
       this.kitchen.draw(ctx);
 
       // draw customers
@@ -111,14 +120,14 @@ export default class GameManager {
   // ------------------ MESSY HELPER FUNCTIONS ------------------
 
   // TODO: revise customer gen logic
-  updateCustomers(customers, deltaTime) {
+  updateCustomers(deltaTime) {
     // Updating and drawing customers each frame
-    customers.forEach((customer, index) => {
+    this.customers.forEach((customer, index) => {
       customer.update(deltaTime);
     });
     // reload customers array (temporary code, will flesh out cust gen)
-    if (customers.length < 3) {
-      customers.push(new Customer(this));
+    if (this.customers.length < 3) {
+      this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
     }
   }
 
@@ -208,5 +217,40 @@ export default class GameManager {
         this.clam.newBullet();
       }
     });
+  }
+}
+// intitialize cooking TODO: Clean up
+
+function initializeCooking(kitchen) {
+  if (kitchen.cooking === false) {
+    var kitchenCooking = setInterval(cookFood, kitchen.cook_time);
+    kitchen.cooking = true;
+  }
+
+  // cookfood interval function
+  function cookFood() {
+    console.log("function cookFood activated");
+    console.log(kitchen.cooked_food_length);
+    // Cook a food bullet into the kitchen if space is available
+
+    if (kitchen.cooked_food_length < kitchen.max_food) {
+      // Generate random y point within food truck window
+      this.rndBinary = randomIntFromInterval(
+        kitchen.y_pos + kitchen.truck_height * (2 / 5), // top of truck window
+        kitchen.y_pos + kitchen.truck_height * (3 / 5) - 5 // bottom of truck window
+      );
+
+      kitchen.cooked_food.push(
+        // push new food item to food truck
+        new Food(kitchen.x_pos + 30, this.rndBinary, 1, true, this.kitchen)
+      );
+      console.log("tried to push new food");
+      console.log(kitchen.cooked_food);
+    }
+
+    // if this.cooking is false, then stop the kitchen cooking interval loop
+    if (kitchen.cooking === false) {
+      clearInterval(kitchenCooking);
+    }
   }
 }

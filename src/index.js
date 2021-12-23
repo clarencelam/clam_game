@@ -1,23 +1,3 @@
-import Clam from "/src/clam";
-import InputHandler from "/src/input";
-import Food from "/src/food";
-import Customer from "/src/customer";
-import Coin from "/src/coin";
-import GameStats from "/src/gameStats";
-import Kitchen from "/src/kitchen";
-import FoodSprite from "/src/foodSprite";
-import {
-  detectCollision,
-  foodShrink,
-  detectOverlapCollision,
-  incrementalAction,
-  eatFood,
-  randomIntFromInterval
-} from "/src/gameMechanics";
-import EndDayPopup from "./endDayPopup";
-import BeginDayPopup from "./beginDayPopup";
-import TwoLinePopup from "./twoLinePopup";
-
 import GameManager from "./gameManager";
 
 // -------------- INITIALIZE GAME OBJECTS ----------------
@@ -34,6 +14,7 @@ let fpsInterval = 10; // one frame per X milliseconds
 let game = new GameManager(GAME_WIDTH, GAME_HEIGHT);
 
 // --------------- MAIN GAMELOOP --------------------------
+
 function gameLoop(timestamp) {
   let deltaTime = timestamp - lastTime;
   if (deltaTime < fpsInterval) {
@@ -46,9 +27,17 @@ function gameLoop(timestamp) {
 
     game.update(deltaTime);
     game.draw(ctx);
+  }
+  requestAnimationFrame(gameLoop);
+}
 
-    // --------------- IF GAME IS ACTIVE --------------------------
-    /*
+// ----------------------- RUN GAMELOOP -----------------------------
+gameLoop();
+
+// ----------------- DEPRECATED INDEX.JS CODE IN CASE I'LL NEED IT AGAIN  --------------------------
+
+// --------------- IF GAME IS ACTIVE --------------------------
+/*
     if (gameStats.game_active === true) {
       // update and draw kitchen objects
       ctx.drawImage(background, 0, 0, GAME_WIDTH, GAME_HEIGHT);
@@ -115,11 +104,10 @@ function gameLoop(timestamp) {
     // --------------- END OF (IF GAME IS ACTIVE) --------------------------
     
     */
-  }
-  requestAnimationFrame(gameLoop);
-}
 
 // ----------------- HELPER FUNCTIONS --------------------------
+
+/*
 
 export function spacebarTrigger() {
   // Perform activites for when spacebar is pressed
@@ -392,5 +380,4 @@ function foodBeingEaten(bullet, customer) {
   }
 }
 
-// ----------------------- RUN GAMELOOP -----------------------------
-gameLoop();
+*/
