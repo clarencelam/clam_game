@@ -22,13 +22,13 @@ const GAMESTATE = {
 };
 
 export default class GameManager {
-  constructor(gameWidth, gameHeight) {
+  constructor(gameWidth, gameHeight, ctx) {
     this.GAME_WIDTH = gameWidth;
     this.GAME_HEIGHT = gameHeight;
     this.gameStats = new GameStats();
 
     this.clam = new Clam(this.GAME_WIDTH, this.GAME_HEIGHT);
-    new InputHandler(this.clam);
+    new InputHandler(this.clam, ctx);
 
     this.background = document.getElementById("background");
     this.bullets = [];
@@ -52,7 +52,7 @@ export default class GameManager {
       return;
     }
 
-    // ------------------ UPDATING W/ GAMESTATE = BUSINESSDAY ------------------
+    // ------------------ GAMESTATE = BUSINESSDAY ------------------
 
     if (this.gamestate === GAMESTATE.BUSINESSDAY) {
       this.kitchen.update(deltaTime);

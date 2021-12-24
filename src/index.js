@@ -11,7 +11,7 @@ canvas.width = GAME_WIDTH;
 let lastTime = 0;
 let fpsInterval = 10; // one frame per X milliseconds
 
-let game = new GameManager(GAME_WIDTH, GAME_HEIGHT);
+let game = new GameManager(GAME_WIDTH, GAME_HEIGHT, canvas);
 
 // --------------- MAIN GAMELOOP --------------------------
 

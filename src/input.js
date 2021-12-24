@@ -1,7 +1,8 @@
 import { spacebarTrigger } from "/src/index";
 
 export default class InputHandler {
-  constructor(clam) {
+  constructor(clam, canvas) {
+    this.canvas = canvas;
     document.addEventListener("keydown", (event) => {
       switch (event.keyCode) {
         case 37:
@@ -45,6 +46,13 @@ export default class InputHandler {
         default:
           console.log("Error - keyup not recognized");
       }
+    });
+    // click listener
+    document.addEventListener("click", (event) => {
+      let rect = canvas.getBoundingClientRect();
+      let x = event.clientX - rect.left;
+      let y = event.clientY - rect.top;
+      console.log("clickX: " + x + "clickY: " + y);
     });
   }
 }
