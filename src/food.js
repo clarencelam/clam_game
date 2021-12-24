@@ -15,6 +15,7 @@ export default class Food {
     this.food_hit = false;
     this.hunger_fill = 1;
     this.pickupable = false;
+
     this.spinning = true;
 
     this.direction = facing; // 1 if right, -1 if left
@@ -70,6 +71,7 @@ export default class Food {
       // draw food and advance spin
       this.drawHelper(ctx);
       this.advanceSpinDegree();
+      console.log("food.draw for spinning food occurred");
     } else {
       // draw food no spin
       this.drawHelper(ctx);

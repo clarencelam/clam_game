@@ -1,7 +1,5 @@
-import { spacebarTrigger } from "/src/index";
-
 export default class InputHandler {
-  constructor(clam, canvas) {
+  constructor(canvas, clam) {
     this.canvas = canvas;
     document.addEventListener("keydown", (event) => {
       switch (event.keyCode) {
@@ -17,11 +15,7 @@ export default class InputHandler {
         case 40:
           clam.moving_down = true;
           break;
-        case 32:
-          // Shoot a bullet
-          spacebarTrigger();
-          clam.shooting = true;
-          break;
+        // NOTE: Spacebar actions are handled in GameManager.spacebarHandler()
         default:
           console.log("Error - keydown not recognized");
       }

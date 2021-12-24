@@ -13,11 +13,6 @@ export default class Kitchen {
 
     this.max_food = 10;
     this.cooked_food = [];
-    if (this.cooked_food !== undefined) {
-      this.cooked_food_length = this.cooked_food.length;
-    } else {
-      this.cooked_food_length = 0;
-    }
 
     this.size = 500;
     this.cooked_food_size = 50;

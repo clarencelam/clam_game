@@ -28,7 +28,6 @@ export default class GameManager {
     this.gameStats = new GameStats();
 
     this.clam = new Clam(this.GAME_WIDTH, this.GAME_HEIGHT);
-    new InputHandler(this.clam, ctx);
 
     this.background = document.getElementById("background");
     this.bullets = [];
@@ -38,6 +37,15 @@ export default class GameManager {
     this.kitchen = new Kitchen(this.GAME_WIDTH, this.GAME_HEIGHT);
 
     this.gamestate = GAMESTATE.BUSINESSDAY; // For now, just start with game running
+
+    new InputHandler(ctx, this.clam);
+    this.spacebarHandler();
+
+    /*
+    document.addEventListener("click", (event) => {
+      this.bullets.push(new Food(10, 10, this.clam.facing));
+    });
+    */
   }
 
   start() {
@@ -119,6 +127,31 @@ export default class GameManager {
 
   // ------------------ MESSY HELPER FUNCTIONS ------------------
 
+  spacebarHandler() {
+    // Actions for spacebar pressing to perform, based on gamestate
+    document.addEventListener("keydown", (event) => {
+      if (event.keyCode === 32) {
+        switch (this.gamestate) {
+          // ----- GAMESTATE = BUSINESSDAY -----
+          case GAMESTATE.BUSINESSDAY:
+            if (this.clam.bullets_held.length > 0) {
+              this.bullets.push(
+                new Food(this.clam.x_pos, this.clam.y_pos, this.clam.facing)
+              );
+              console.log("Bullet pushed from spacebarTrigger");
+              console.log(this.bullets);
+              this.clam.bullets_held.shift(); // removes last item in array
+              this.clam.shooting = true;
+            }
+            break;
+
+          default:
+          //
+        }
+      }
+    });
+  }
+
   // TODO: revise customer gen logic
   updateCustomers(deltaTime) {
     // Updating and drawing customers each frame
@@ -166,7 +199,7 @@ export default class GameManager {
       if (customer.hunger_points <= 0) {
         // drop coin if customer hasnt yet
         if (customer.done_dropping_coin === false) {
-          this.dropCoin(customer, coins);
+          dropCoin(customer, coins);
           customer.done_dropping_coin = true;
         }
 
@@ -229,11 +262,9 @@ function initializeCooking(kitchen) {
 
   // cookfood interval function
   function cookFood() {
-    console.log("function cookFood activated");
-    console.log(kitchen.cooked_food_length);
     // Cook a food bullet into the kitchen if space is available
 
-    if (kitchen.cooked_food_length < kitchen.max_food) {
+    if (kitchen.cooked_food.length < kitchen.max_food) {
       // Generate random y point within food truck window
       this.rndBinary = randomIntFromInterval(
         kitchen.y_pos + kitchen.truck_height * (2 / 5), // top of truck window
@@ -244,8 +275,8 @@ function initializeCooking(kitchen) {
         // push new food item to food truck
         new Food(kitchen.x_pos + 30, this.rndBinary, 1, true, this.kitchen)
       );
-      console.log("tried to push new food");
       console.log(kitchen.cooked_food);
+    } else {
     }
 
     // if this.cooking is false, then stop the kitchen cooking interval loop
