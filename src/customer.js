@@ -1,8 +1,19 @@
 import { randomIntFromInterval, incrementalAction } from "/src/gameMechanics";
+import Interval from "/src/interval";
+
+export const CUSTSTATE = {
+  ACTIVE: 0,
+  EATING: 1,
+  EXITING: 2,
+  DROPPINGLOOT: 3
+};
+
 export default class Customer {
   // class to represent the cusomter fish that player will feed
 
   constructor(gameWidth, gameHeight) {
+    this.state = CUSTSTATE.ACTIVE;
+
     this.img_frame1 = document.getElementById("cust_baseA");
     this.img_frame2 = document.getElementById("cust_baseB");
 
@@ -10,14 +21,17 @@ export default class Customer {
     this.width = 37 + 8;
 
     this.speed = 3;
-    this.return_speed = 4;
-    this.hunger_points = 10;
+    this.return_speed = 4; // applies on CUSTSTATE.DONEEATING
+
+    this.hunger_points = 2;
+    this.drop_value = 1;
+
     this.markfordelete = false;
     this.GAMEWIDTH = gameWidth;
-    this.hit = false;
-    this.hunger_points = 2;
+
     this.min = 0;
     this.max = gameHeight * 0.75;
+
     this.rndBinary = randomIntFromInterval(1, 2);
     this.done_dropping_coin = false;
     const rndInt = randomIntFromInterval(this.min, this.max);
@@ -35,41 +49,33 @@ export default class Customer {
       this.x_direction = 1;
     }
     this.y_direction = 0; //no vertical movement to start
-
-    //CUSTOMER STATES
-    this.walking = true;
-    this.stopped = false;
   }
 
-  doneEating() {
-    this.y_direction = -1;
-    this.walking = true;
-    this.stopped = false;
-    this.apply_return_speed();
-    if (this.y_pos <= 0) {
-      this.markfordelete = true;
+  update(deltaTime) {
+    // Movement
+    this.x_pos = this.x_pos + this.speed * this.x_direction;
+    this.y_pos = this.y_pos + this.speed * this.y_direction;
+
+    if (this.state === CUSTSTATE.EATING) {
+      this.walking = false;
+      this.speed = 0;
     }
-  }
 
-  hitFood(bullet) {
-    this.stop();
-  }
+    if (this.state === CUSTSTATE.EXITING) {
+      this.walking = true;
+      this.y_direction = -1;
+      this.speed = this.return_speed;
+    }
 
-  stop() {
-    this.speed = 0;
-    this.walking = false;
-    this.stopped = true;
-  }
-
-  apply_return_speed() {
-    this.speed = this.return_speed;
+    // CHECK DELETE
+    this.checkOutsideBorders();
   }
 
   draw(ctx) {
     // swap the image frames per second when cust is walking
     const newtime = new Date();
     let s = newtime.getMilliseconds();
-    if (this.walking === true) {
+    if (this.state === CUSTSTATE.ACTIVE || this.state === CUSTSTATE.EXITING) {
       if (s < 500) {
         this.img = this.img_frame1;
       } else {
@@ -78,7 +84,7 @@ export default class Customer {
     }
 
     if (this.rndBinary === 2) {
-      //facing right
+      // GENERATE CUSTOMER FACING RIGHT
       ctx.translate(this.x_pos + this.width, this.y_pos);
       // scaleX by -1; this "trick" flips horizontally
       ctx.scale(-1, 1);
@@ -88,6 +94,7 @@ export default class Customer {
       // always clean up -- reset transformations to default
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     } else {
+      // GENERATE CUSTOMER FACING LEFT
       ctx.drawImage(this.img, this.x_pos, this.y_pos, this.width, this.height);
     }
   }
@@ -96,21 +103,10 @@ export default class Customer {
     // Delete customers when they cross the screen & exit
     if (
       (this.x_pos > this.GAMEWIDTH && this.x_direction === 1) ||
-      (this.x_pos + this.width < 0 && this.x_direction === -1)
+      (this.x_pos + this.width < 0 && this.x_direction === -1) ||
+      this.y_pos < 0
     ) {
       this.markfordelete = true;
     }
-  }
-
-  update(deltaTime) {
-    if (this.hunger_points <= 0) {
-      this.doneEating();
-    }
-    // Movement
-    this.x_pos = this.x_pos + this.speed * this.x_direction;
-    this.y_pos = this.y_pos + this.speed * this.y_direction;
-
-    // if cust
-    this.checkOutsideBorders();
   }
 }

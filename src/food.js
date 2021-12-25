@@ -13,6 +13,7 @@ export default class Food {
     this.fade_depricator = 1;
     this.marked_for_deletion = false;
     this.food_hit = false;
+
     this.hunger_fill = 1;
     this.pickupable = false;
 

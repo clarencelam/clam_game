@@ -34,6 +34,9 @@ function gameLoop(timestamp) {
 // ----------------------- RUN GAMELOOP -----------------------------
 gameLoop();
 
+//
+//
+//
 // ----------------- DEPRECATED INDEX.JS CODE IN CASE I'LL NEED IT AGAIN  --------------------------
 
 // --------------- IF GAME IS ACTIVE --------------------------

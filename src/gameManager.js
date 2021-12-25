@@ -10,6 +10,7 @@ import {
   detectOverlapCollision,
   randomIntFromInterval
 } from "/src/gameMechanics";
+import { CUSTSTATE } from "/src/customer";
 
 const GAMESTATE = {
   BUSINESSDAY: 0,
@@ -138,8 +139,6 @@ export default class GameManager {
               this.bullets.push(
                 new Food(this.clam.x_pos, this.clam.y_pos, this.clam.facing)
               );
-              console.log("Bullet pushed from spacebarTrigger");
-              console.log(this.bullets);
               this.clam.bullets_held.shift(); // removes last item in array
               this.clam.shooting = true;
             }
@@ -157,7 +156,15 @@ export default class GameManager {
     // Updating and drawing customers each frame
     this.customers.forEach((customer, index) => {
       customer.update(deltaTime);
+      if (customer.hunger_points <= 0) {
+        if (customer.state === CUSTSTATE.DROPPINGLOOT) {
+          this.dropCoin(customer);
+          this.gameStats.days_fedcusts++;
+          customer.state = CUSTSTATE.EXITING;
+        }
+      }
     });
+
     // reload customers array (temporary code, will flesh out cust gen)
     if (this.customers.length < 3) {
       this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
@@ -171,9 +178,9 @@ export default class GameManager {
       this.customers.forEach((customer, index) => {
         if (detectOverlapCollision(bullet, customer)) {
           // if bullets are colliding:
-          // trigger customer eating process if customer has not yet begun
-          if (customer.hit === false) {
-            this.custEatingFood(bullet, customer, this.coins);
+          if (customer.state === CUSTSTATE.ACTIVE) {
+            // trigger customer eating process if customer has not yet begun
+            this.triggerCustEatingFood(customer, bullet, this.gameStats);
           }
           // trigger food being eaten process if food has not yet
           if (bullet.food_hit === false) {
@@ -185,41 +192,35 @@ export default class GameManager {
     });
   }
   // related to updateBullets above
-  custEatingFood(bullet, customer, coins) {
+
+  triggerCustEatingFood(customer, bullet, gameStats) {
     // Actions for Customer to perform when they hit Food in game
-    customer.hit = true;
-    customer.hitFood(bullet);
+    customer.state = CUSTSTATE.EATING;
 
     // Code to represent the customer "eating" the food
-    var eatTime = setInterval(custEat, 750);
-    function custEat() {
-      const fill_points = 1;
-      customer.hunger_points = customer.hunger_points - fill_points;
+    let eat_interval = setInterval(takeBite, 750);
+    function takeBite() {
+      customer.hunger_points = customer.hunger_points - bullet.hunger_fill;
 
       if (customer.hunger_points <= 0) {
-        // drop coin if customer hasnt yet
-        if (customer.done_dropping_coin === false) {
-          dropCoin(customer, coins);
-          customer.done_dropping_coin = true;
-        }
-
-        clearInterval(eatTime);
-        // accrue GameStats stats
-        this.gameStats.days_fedcusts++;
+        clearInterval(eat_interval);
+        console.log("Hunger depleted");
+        customer.state = CUSTSTATE.DROPPINGLOOT;
       }
     }
   }
+
   // related to custEatingFood above
-  dropCoin(customer, coins) {
+  dropCoin(customer) {
     // Function to make customer drop coin
-    coins.push(
+    this.coins.push(
       new Coin(
         customer.x_pos + customer.width / 2,
-        customer.y_pos + customer.height / 2
+        customer.y_pos + customer.height / 2,
+        customer.drop_value
       )
     );
     console.log("dropCoin function activated");
-    console.log(coins);
   }
 
   // silly code to make food shrink when hit
@@ -275,7 +276,6 @@ function initializeCooking(kitchen) {
         // push new food item to food truck
         new Food(kitchen.x_pos + 30, this.rndBinary, 1, true, this.kitchen)
       );
-      console.log(kitchen.cooked_food);
     } else {
     }
 
