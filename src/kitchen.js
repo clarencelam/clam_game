@@ -21,7 +21,7 @@ export default class Kitchen {
     this.number_pos_y = gameHeight * (2 / 3);
 
     this.cooking = false;
-    this.cook_time = 2000;
+    this.cook_time = 500;
   }
 
   update(deltaTime) {

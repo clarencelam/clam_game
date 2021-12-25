@@ -11,6 +11,7 @@ import {
   randomIntFromInterval
 } from "/src/gameMechanics";
 import { CUSTSTATE } from "/src/customer";
+import { FOODSTATE } from "/src/food";
 
 const GAMESTATE = {
   BUSINESSDAY: 0,
@@ -41,12 +42,6 @@ export default class GameManager {
 
     new InputHandler(ctx, this.clam);
     this.spacebarHandler();
-
-    /*
-    document.addEventListener("click", (event) => {
-      this.bullets.push(new Food(10, 10, this.clam.facing));
-    });
-    */
   }
 
   start() {
@@ -150,12 +145,56 @@ export default class GameManager {
       }
     });
   }
+  /*
+  // TODO: refactor this?
+  updateBullets(deltaTime) {
+    //function to update bullets each loop
+    this.bullets.forEach((bullet, index) => {
+      this.customers.forEach((customer, index) => {
+          if (detectOverlapCollision(bullet, customer)) {
+            // trigger food being eaten process if food has not yet
+            if (bullet.state === FOODSTATE.SERVED) {
+              this.foodBeingEaten(bullet, customer);
+              bullet.state = FOODSTATE.BEINGEATEN;
+            }
+          }
+        
+      });
+
+      bullet.update(deltaTime);
+    });
+  }
+*/
+
+  updateBullets(deltaTime) {
+    //function to update bullets each loop
+    this.bullets.forEach((bullet, index) => {
+      for (var i = 0; i < this.customers.length; i++) {
+        let thecustomer = this.customers[i];
+        if (detectOverlapCollision(bullet, thecustomer)) {
+          // trigger food being eaten process if food has not yet
+          if (
+            bullet.state === FOODSTATE.SERVED &&
+            thecustomer.saturated === false
+          ) {
+            thecustomer.saturated = true;
+            this.foodBeingEaten(bullet, thecustomer);
+            bullet.state = FOODSTATE.BEINGEATEN;
+          }
+        }
+      }
+
+      bullet.update(deltaTime);
+    });
+  }
 
   // TODO: revise customer gen logic
   updateCustomers(deltaTime) {
     // Updating and drawing customers each frame
     this.customers.forEach((customer, index) => {
       customer.update(deltaTime);
+
+      // Drop loot
       if (customer.hunger_points <= 0) {
         if (customer.state === CUSTSTATE.DROPPINGLOOT) {
           this.dropCoin(customer);
@@ -163,38 +202,28 @@ export default class GameManager {
           customer.state = CUSTSTATE.EXITING;
         }
       }
+      // Check collision with Bullets
+      for (var i = 0; i < this.bullets.length; i++) {
+        let thebullet = this.bullets[i];
+        if (detectOverlapCollision(thebullet, customer)) {
+          if (
+            customer.state === CUSTSTATE.ACTIVE &&
+            thebullet.state === FOODSTATE.SERVED
+          ) {
+            this.triggerCustEatingFood(customer, thebullet);
+          }
+        }
+      }
     });
 
     // reload customers array (temporary code, will flesh out cust gen)
-    if (this.customers.length < 3) {
+    if (this.customers.length < 8) {
       this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
     }
   }
 
-  // TODO: refactor this?
-  updateBullets(deltaTime) {
-    //function to update bullets each loop
-    this.bullets.forEach((bullet, index) => {
-      this.customers.forEach((customer, index) => {
-        if (detectOverlapCollision(bullet, customer)) {
-          // if bullets are colliding:
-          if (customer.state === CUSTSTATE.ACTIVE) {
-            // trigger customer eating process if customer has not yet begun
-            this.triggerCustEatingFood(customer, bullet, this.gameStats);
-          }
-          // trigger food being eaten process if food has not yet
-          if (bullet.food_hit === false) {
-            this.foodBeingEaten(bullet, customer);
-          }
-        }
-      });
-      bullet.update(deltaTime);
-    });
-  }
-  // related to updateBullets above
-
-  triggerCustEatingFood(customer, bullet, gameStats) {
-    // Actions for Customer to perform when they hit Food in game
+  triggerCustEatingFood(customer, bullet) {
+    // Actions for Customer to perform when they hit Food in game. Tried to refactor this to Cust object, coudln't get it to work.
     customer.state = CUSTSTATE.EATING;
 
     // Code to represent the customer "eating" the food
@@ -225,19 +254,19 @@ export default class GameManager {
 
   // silly code to make food shrink when hit
   foodBeingEaten(bullet, customer) {
-    bullet.food_hit = true;
-    bullet.hitCustomer(customer);
-
-    var intervalId = setInterval(biteShrink, 750);
-
+    var intervalId = setInterval(biteShrink, 300);
     function biteShrink() {
-      const shrinkAmount = 25;
+      const shrinkAmount = 10;
       bullet.size = bullet.size - shrinkAmount;
       bullet.x_pos = bullet.x_pos + shrinkAmount / 2;
       bullet.y_pos = bullet.y_pos + shrinkAmount / 2;
 
-      if (bullet.size <= 0) {
+      if (
+        customer.state === CUSTSTATE.DROPPINGLOOT ||
+        customer.state === CUSTSTATE.EXITING
+      ) {
         clearInterval(intervalId);
+        bullet.marked_for_deletion = true;
       }
     }
   }
@@ -274,7 +303,13 @@ function initializeCooking(kitchen) {
 
       kitchen.cooked_food.push(
         // push new food item to food truck
-        new Food(kitchen.x_pos + 30, this.rndBinary, 1, true, this.kitchen)
+        new Food(
+          kitchen.x_pos + 30,
+          this.rndBinary,
+          1,
+          FOODSTATE.INKITCHEN,
+          this.kitchen
+        )
       );
     } else {
     }

@@ -1,49 +1,45 @@
 import { randomIntFromInterval } from "/src/gameMechanics";
 
+export const FOODSTATE = {
+  INKITCHEN: 0,
+  SERVED: 1,
+  BEINGEATEN: 2
+};
+
 export default class Food {
   // Class to represent the food objects used as bullets in the game
-  constructor(x, y, facing, kitchenFood = false, kitchen) {
+  constructor(x, y, facing, state = FOODSTATE.SERVED, kitchen) {
+    this.state = state;
+
     this.image = document.getElementById("nigiri_img");
     this.x_pos = x;
     this.y_pos = y;
     this.size = 50;
-    this.init_speed = 10;
+    this.speed = 10;
+
     this.speed_depricator = 0.2;
     this.fade_time = 180;
+
     this.fade_depricator = 1;
     this.marked_for_deletion = false;
-    this.food_hit = false;
 
     this.hunger_fill = 1;
     this.pickupable = false;
 
-    this.spinning = true;
-
     this.direction = facing; // 1 if right, -1 if left
 
-    if (kitchenFood === true) {
-      this.rnd_speed = randomIntFromInterval(2, 9);
-
-      this.fade_depricator = 0;
-      this.pickupable = true;
-      this.init_speed = this.rnd_speed;
-      console.log("spit new kitchen foood");
-      this.spinning = false;
-    }
-
     this.deg = 0;
+
+    if (this.state === FOODSTATE.INKITCHEN) {
+      let rnd_speed = randomIntFromInterval(2, 9);
+      this.speed = rnd_speed;
+      console.log("food cooked in kitchen");
+      console.log(rnd_speed);
+    }
   }
 
-  hitCustomer(customer) {
-    // actions when food hits customer
-    // below if-block ensures the food is actually over the customer image before both stop
-    this.stop();
-    this.spinning = false;
-  }
-
-  stop() {
-    // make the food stop moving
-    this.speed_depricator = this.init_speed;
+  resetStats() {
+    this.speed = 10;
   }
 
   advanceSpinDegree() {
@@ -80,20 +76,29 @@ export default class Food {
   }
 
   update(deltaTime) {
-    //depracate speed to 0 to stop the food
-    if (this.init_speed > 0) {
-      this.init_speed = this.init_speed - this.speed_depricator;
+    this.x_pos += this.speed * this.direction;
+    if (this.speed > 0) {
+      this.speed = this.speed - this.speed_depricator;
     } else {
-      this.init_speed = 0;
+      this.speed = 0;
     }
 
-    //deprecate fade_time to 0 to signal when to remove the food from scrn
-    if (this.fade_time > 0) {
-      this.fade_time = this.fade_time - this.fade_depricator;
-    } else {
-      this.fade_time = 0;
-      this.marked_for_deletion = true;
+    if (this.state === FOODSTATE.SERVED) {
+      this.spinning = true;
+      this.pickupable = true;
+
+      if (this.fade_time > 0) {
+        this.fade_time = this.fade_time - this.fade_depricator;
+      } else {
+        this.fade_time = 0;
+        this.marked_for_deletion = true;
+      }
     }
-    this.x_pos += this.init_speed * this.direction;
+
+    if (this.state === FOODSTATE.BEINGEATEN) {
+      this.speed = 0;
+      this.spinning = false;
+      this.pickupable = false;
+    }
   }
 }

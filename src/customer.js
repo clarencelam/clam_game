@@ -1,5 +1,4 @@
 import { randomIntFromInterval, incrementalAction } from "/src/gameMechanics";
-import Interval from "/src/interval";
 
 export const CUSTSTATE = {
   ACTIVE: 0,
@@ -12,7 +11,10 @@ export default class Customer {
   // class to represent the cusomter fish that player will feed
 
   constructor(gameWidth, gameHeight) {
+    this.GAMEWIDTH = gameWidth;
+    this.GAMEHEIGHT = gameHeight;
     this.state = CUSTSTATE.ACTIVE;
+    this.saturated = false;
 
     this.img_frame1 = document.getElementById("cust_baseA");
     this.img_frame2 = document.getElementById("cust_baseB");
@@ -27,13 +29,11 @@ export default class Customer {
     this.drop_value = 1;
 
     this.markfordelete = false;
-    this.GAMEWIDTH = gameWidth;
 
     this.min = 0;
     this.max = gameHeight * 0.75;
 
     this.rndBinary = randomIntFromInterval(1, 2);
-    this.done_dropping_coin = false;
     const rndInt = randomIntFromInterval(this.min, this.max);
 
     if (this.rndBinary === 1) {
