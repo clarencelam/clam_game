@@ -46,6 +46,7 @@ export default class GameStats {
 
   update() {}
   draw(ctx) {
+    ctx.textAlign = "left";
     ctx.font = "20px Tahoma";
     ctx.fillText("DOLLARS: " + this.dollars, 10, 20);
 

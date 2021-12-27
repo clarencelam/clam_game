@@ -37,15 +37,16 @@ export default class GameManager {
     this.popups = [];
     this.customers = [];
     this.kitchen = new Kitchen(this.GAME_WIDTH, this.GAME_HEIGHT);
+    //this.click = { x: null, y: null };
 
-    this.gamestate = GAMESTATE.BUSINESSDAY; // For now, just start with game running
+    this.gamestate = GAMESTATE.MENU; // For now, just start with game running
 
     new InputHandler(ctx, this.clam);
     this.spacebarHandler();
   }
 
   start() {
-    //
+    // Start new level
   }
 
   update(deltaTime) {
@@ -97,27 +98,30 @@ export default class GameManager {
 
       this.kitchen.draw(ctx);
 
-      // draw customers
-      this.customers.forEach((customer, index) => {
-        customer.draw(ctx);
-      });
-
-      // draw bullets
-      this.bullets.forEach((bullet, index) => {
-        bullet.draw(ctx);
-      });
-
-      this.coins.forEach((coin, index) => {
-        coin.draw(ctx);
-      });
+      [
+        ...this.customers,
+        ...this.bullets,
+        ...this.coins,
+        ...this.popups
+      ].forEach((object) => object.draw(ctx));
+      this.customers.forEach((cust) => cust.draw(ctx));
 
       this.clam.draw(ctx);
 
-      this.popups.forEach((popup) => {
-        popup.draw(ctx);
-      });
-
       this.gameStats.draw(ctx);
+    }
+
+    if (this.gamestate === GAMESTATE.MENU) {
+      ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+      ctx.font = "40px Arial";
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+
+      ctx.fillText(
+        "Press SPACEBAR to start game",
+        this.GAME_WIDTH / 2,
+        this.GAME_HEIGHT / 2 + 50
+      );
     }
   }
 
@@ -127,6 +131,7 @@ export default class GameManager {
     // Actions for spacebar pressing to perform, based on gamestate
     document.addEventListener("keydown", (event) => {
       if (event.keyCode === 32) {
+        console.log("GAMESTATE: " + this.gamestate);
         switch (this.gamestate) {
           // ----- GAMESTATE = BUSINESSDAY -----
           case GAMESTATE.BUSINESSDAY:
@@ -138,31 +143,35 @@ export default class GameManager {
               this.clam.shooting = true;
             }
             break;
-
+          case GAMESTATE.MENU:
+            this.gamestate = GAMESTATE.BUSINESSDAY;
+            console.log(this.gamestate);
           default:
           //
         }
       }
     });
   }
-  /*
-  // TODO: refactor this?
-  updateBullets(deltaTime) {
-    //function to update bullets each loop
-    this.bullets.forEach((bullet, index) => {
-      this.customers.forEach((customer, index) => {
-          if (detectOverlapCollision(bullet, customer)) {
-            // trigger food being eaten process if food has not yet
-            if (bullet.state === FOODSTATE.SERVED) {
-              this.foodBeingEaten(bullet, customer);
-              bullet.state = FOODSTATE.BEINGEATEN;
-            }
-          }
-        
-      });
 
-      bullet.update(deltaTime);
+  /*
+  clickToChangeGamestate(object, gamestate) {
+    document.addEventListener("click", (event) => {
+      let rect = this.ctx.getBoundingClientRect();
+      this.click.x = event.clientX - rect.left;
+      this.click.y = event.clientY - rect.top;
+      console.log(this.click);
     });
+    if (this.isIntersect(this.click, object)) {
+      this.gamestate = gamestate;
+    }
+  }
+
+  isIntersect(point, object) {
+    if (point.x > object.x_pos && point.x < object.x_pos + object.height) {
+      return true;
+    } else {
+      return false;
+    }
   }
 */
 
@@ -217,7 +226,7 @@ export default class GameManager {
     });
 
     // reload customers array (temporary code, will flesh out cust gen)
-    if (this.customers.length < 8) {
+    if (this.customers.length < 15) {
       this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
     }
   }
