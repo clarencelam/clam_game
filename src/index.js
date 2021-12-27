@@ -1,22 +1,4 @@
-import Clam from "/src/clam";
-import InputHandler from "/src/input";
-import Food from "/src/food";
-import Customer from "/src/customer";
-import Coin from "/src/coin";
-import GameStats from "/src/gameStats";
-import Kitchen from "/src/kitchen";
-import FoodSprite from "/src/foodSprite";
-import {
-  detectCollision,
-  foodShrink,
-  detectOverlapCollision,
-  incrementalAction,
-  eatFood,
-  randomIntFromInterval
-} from "/src/gameMechanics";
-import EndDayPopup from "./endDayPopup";
-import BeginDayPopup from "./beginDayPopup";
-import TwoLinePopup from "./twoLinePopup";
+import GameManager from "./gameManager";
 
 // -------------- INITIALIZE GAME OBJECTS ----------------
 const GAME_WIDTH = 1200;
@@ -26,22 +8,13 @@ let ctx = canvas.getContext("2d");
 canvas.height = GAME_HEIGHT;
 canvas.width = GAME_WIDTH;
 
-let background = document.getElementById("background");
-
-let clam = new Clam(GAME_WIDTH, GAME_HEIGHT);
-let bullets = [];
-let coins = [];
-let popups = [];
-let customers = [];
-let gameStats = new GameStats();
-let kitchen = new Kitchen(GAME_HEIGHT, GAME_WIDTH);
-
-new InputHandler(clam);
-
 let lastTime = 0;
 let fpsInterval = 10; // one frame per X milliseconds
 
+let game = new GameManager(GAME_WIDTH, GAME_HEIGHT, canvas);
+
 // --------------- MAIN GAMELOOP --------------------------
+
 function gameLoop(timestamp) {
   let deltaTime = timestamp - lastTime;
   if (deltaTime < fpsInterval) {
@@ -52,8 +25,22 @@ function gameLoop(timestamp) {
 
     ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-    // --------------- IF GAME IS ACTIVE --------------------------
+    game.update(deltaTime);
+    game.draw(ctx);
+  }
+  requestAnimationFrame(gameLoop);
+}
 
+// ----------------------- RUN GAMELOOP -----------------------------
+gameLoop();
+
+//
+//
+//
+// ----------------- DEPRECATED INDEX.JS CODE IN CASE I'LL NEED IT AGAIN  --------------------------
+
+// --------------- IF GAME IS ACTIVE --------------------------
+/*
     if (gameStats.game_active === true) {
       // update and draw kitchen objects
       ctx.drawImage(background, 0, 0, GAME_WIDTH, GAME_HEIGHT);
@@ -98,6 +85,7 @@ function gameLoop(timestamp) {
           gameStats.days_dollars = gameStats.days_dollars + coin.value;
         }
         coin.draw(ctx);
+        console.log("drawing coins");
       });
 
       // update and draw bullets
@@ -117,11 +105,12 @@ function gameLoop(timestamp) {
       gameStats.draw(ctx);
     }
     // --------------- END OF (IF GAME IS ACTIVE) --------------------------
-  }
-  requestAnimationFrame(gameLoop);
-}
+    
+    */
 
 // ----------------- HELPER FUNCTIONS --------------------------
+
+/*
 
 export function spacebarTrigger() {
   // Perform activites for when spacebar is pressed
@@ -267,7 +256,6 @@ function checkClamGettingFood() {
   kitchen.cooked_food.forEach((food, index) => {
     if (detectCollision(clam, food)) {
       food.marked_for_deletion = true;
-      console.log("clam collide w kitchen food");
       clam.bullets_held.push(new FoodSprite(clam.x_pos, clam.y_pos));
     }
   });
@@ -293,7 +281,6 @@ function initializeKitchen(kitchen) {
         // push new food item to food truck
         new Food(kitchen.x_pos + 30, this.rndBinary, 1, true, this.kitchen)
       );
-      console.log("newfood pushed to kitchen");
     }
 
     if (kitchen.cooking === false) {
@@ -308,13 +295,6 @@ function updateBullets(bullets, deltaTime) {
     customers.forEach((customer, index) => {
       if (detectOverlapCollision(bullet, customer)) {
         // if bullets are colliding:
-        // drop coin if customer is done eating
-        if (
-          customer.hunger_points <= 0 &&
-          customer.done_dropping_coin === false
-        ) {
-          dropCoin(customer, coins);
-        }
         // trigger customer eating process if customer has not yet begun
         if (customer.hit === false) {
           custEatingFood(bullet, customer, coins);
@@ -329,7 +309,6 @@ function updateBullets(bullets, deltaTime) {
     if (detectCollision(bullet, clam) && bullet.pickupable === true) {
       clam.bullets_held.push(new FoodSprite(clam.x_pos, clam.y_pos));
       bullet.marked_for_deletion = true;
-      console.log("clam collide w existing food");
     }
 
     bullet.update(deltaTime);
@@ -345,7 +324,8 @@ function dropCoin(customer, coins) {
       customer.y_pos + customer.height / 2
     )
   );
-  customer.done_dropping_coin = true;
+  console.log("dropCoin function activated");
+  console.log(coins);
 }
 
 function updateCustomers(customers, deltaTime) {
@@ -372,6 +352,12 @@ function custEatingFood(bullet, customer, coins) {
     customer.hunger_points = customer.hunger_points - fill_points;
 
     if (customer.hunger_points <= 0) {
+      // drop coin if customer hasnt yet
+      if (customer.done_dropping_coin === false) {
+        dropCoin(customer, coins);
+        customer.done_dropping_coin = true;
+      }
+
       clearInterval(eatTime);
       // accrue GameStats stats
       gameStats.days_fedcusts++;
@@ -397,5 +383,4 @@ function foodBeingEaten(bullet, customer) {
   }
 }
 
-// ----------------------- RUN GAMELOOP -----------------------------
-gameLoop();
+*/
