@@ -33,8 +33,6 @@ export default class Food {
     if (this.state === FOODSTATE.INKITCHEN) {
       let rnd_speed = randomIntFromInterval(2, 9);
       this.speed = rnd_speed;
-      console.log("food cooked in kitchen");
-      console.log(rnd_speed);
     }
   }
 
@@ -68,7 +66,6 @@ export default class Food {
       // draw food and advance spin
       this.drawHelper(ctx);
       this.advanceSpinDegree();
-      console.log("food.draw for spinning food occurred");
     } else {
       // draw food no spin
       this.drawHelper(ctx);

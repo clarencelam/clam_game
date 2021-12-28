@@ -62,33 +62,17 @@ export default class GameManager {
 
     if (this.gamestate === GAMESTATE.BUSINESSDAY) {
       this.kitchen.update(deltaTime);
-      initializeCooking(this.kitchen);
-
       this.customers = this.customers.filter(
         (customer) => !customer.markfordelete
       );
       this.updateCustomers(deltaTime);
-
       this.checkClamGettingFood();
-
       this.bullets = this.bullets.filter(
         (bullet) => !bullet.marked_for_deletion
       );
       this.updateBullets(this.bullets, deltaTime);
-
-      //update coins TODO: refacor
       this.coins = this.coins.filter((coin) => !coin.marked_for_deletion);
-
-      this.coins.forEach((coin, index) => {
-        if (detectCollision(coin, this.clam)) {
-          coin.marked_for_deletion = true;
-          // Accrue gameStats
-          this.gameStats.dollars = this.gameStats.dollars + coin.value;
-          this.gameStats.days_dollars =
-            this.gameStats.days_dollars + coin.value;
-        }
-      });
-
+      this.updateCoins(this.coins);
       this.clam.update(deltaTime);
     }
 
@@ -188,6 +172,7 @@ export default class GameManager {
       this.customers = [];
       this.coins = [];
       this.gamestate = GAMESTATE.BUSINESSDAY;
+      initializeCooking(this.kitchen);
     }
 
     if (gamestate === GAMESTATE.TUTORIAL) {
@@ -267,6 +252,17 @@ export default class GameManager {
     if (this.customers.length < 15) {
       this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
     }
+  }
+
+  updateCoins(coins) {
+    coins.forEach((coin) => {
+      if (detectCollision(coin, this.clam)) {
+        coin.marked_for_deletion = true;
+        // Accrue gameStats
+        this.gameStats.dollars = this.gameStats.dollars + coin.value;
+        this.gameStats.days_dollars = this.gameStats.days_dollars + coin.value;
+      }
+    });
   }
 
   triggerCustEatingFood(customer, bullet) {

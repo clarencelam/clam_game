@@ -79,7 +79,5 @@ export default class BeginDayPopup {
       this.screen_centered_x + 450,
       this.screen_centered_y + 180
     );
-
-    console.log("tried to draw begin day objects");
   }
 }
