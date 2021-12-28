@@ -12,6 +12,7 @@ import {
 } from "/src/gameMechanics";
 import { CUSTSTATE } from "/src/customer";
 import { FOODSTATE } from "/src/food";
+import TutorialPopup from "/src/tutorialPopup";
 
 const GAMESTATE = {
   BUSINESSDAY: 0,
@@ -90,6 +91,19 @@ export default class GameManager {
 
       this.clam.update(deltaTime);
     }
+
+    if (this.gamestate === GAMESTATE.STARTLEVEL) {
+      // Show popup, update objects needed in tutorial
+      this.kitchen.update(deltaTime);
+      this.checkClamGettingFood();
+      this.bullets = this.bullets.filter(
+        (bullet) => !bullet.marked_for_deletion
+      );
+      this.updateBullets(this.bullets, deltaTime);
+      this.clam.update(deltaTime);
+
+      return;
+    }
   }
 
   draw(ctx) {
@@ -123,6 +137,19 @@ export default class GameManager {
         this.GAME_HEIGHT / 2 + 50
       );
     }
+
+    if (this.gamestate === GAMESTATE.STARTLEVEL) {
+      // Draw objects needed for tutorial
+      ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+      this.kitchen.draw(ctx);
+      [...this.bullets, ...this.popups].forEach((object) => object.draw(ctx));
+      this.clam.draw(ctx);
+      this.gameStats.draw(ctx);
+      if (this.clam.bullets_held.length > 0) {
+        this.popups = [];
+        this.gamestate = GAMESTATE.BUSINESSDAY;
+      }
+    }
   }
 
   // ------------------ MESSY HELPER FUNCTIONS ------------------
@@ -144,36 +171,33 @@ export default class GameManager {
             }
             break;
           case GAMESTATE.MENU:
-            this.gamestate = GAMESTATE.BUSINESSDAY;
+            this.gamestate = GAMESTATE.STARTLEVEL;
             console.log(this.gamestate);
+            this.kitchen.cooked_food.push(
+              // push new food item to food truck
+              new Food(
+                20,
+                this.GAME_HEIGHT - 160,
+                1,
+                FOODSTATE.INKITCHEN,
+                this.kitchen
+              )
+            );
+            this.popups.push(
+              new TutorialPopup(
+                this.GAME_WIDTH,
+                this.GAME_HEIGHT,
+                this.gameStats.business_day_timer,
+                this.gameStats.days_tax
+              )
+            );
+
           default:
           //
         }
       }
     });
   }
-
-  /*
-  clickToChangeGamestate(object, gamestate) {
-    document.addEventListener("click", (event) => {
-      let rect = this.ctx.getBoundingClientRect();
-      this.click.x = event.clientX - rect.left;
-      this.click.y = event.clientY - rect.top;
-      console.log(this.click);
-    });
-    if (this.isIntersect(this.click, object)) {
-      this.gamestate = gamestate;
-    }
-  }
-
-  isIntersect(point, object) {
-    if (point.x > object.x_pos && point.x < object.x_pos + object.height) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-*/
 
   updateBullets(deltaTime) {
     //function to update bullets each loop
@@ -329,3 +353,25 @@ function initializeCooking(kitchen) {
     }
   }
 }
+
+/*
+  clickToChangeGamestate(object, gamestate) {
+    document.addEventListener("click", (event) => {
+      let rect = this.ctx.getBoundingClientRect();
+      this.click.x = event.clientX - rect.left;
+      this.click.y = event.clientY - rect.top;
+      console.log(this.click);
+    });
+    if (this.isIntersect(this.click, object)) {
+      this.gamestate = gamestate;
+    }
+  }
+
+  isIntersect(point, object) {
+    if (point.x > object.x_pos && point.x < object.x_pos + object.height) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+*/
