@@ -18,7 +18,7 @@ const GAMESTATE = {
   BUSINESSDAY: 0,
   NIGHT: 1,
   MENU: 2,
-  STARTLEVEL: 3,
+  TUTORIAL: 3,
   ENDLEVEL: 4,
   NEXTLEVEL: 5,
   GAMEOVER: 6
@@ -92,7 +92,7 @@ export default class GameManager {
       this.clam.update(deltaTime);
     }
 
-    if (this.gamestate === GAMESTATE.STARTLEVEL) {
+    if (this.gamestate === GAMESTATE.TUTORIAL) {
       // Show popup, update objects needed in tutorial
       this.kitchen.update(deltaTime);
       this.checkClamGettingFood();
@@ -138,7 +138,7 @@ export default class GameManager {
       );
     }
 
-    if (this.gamestate === GAMESTATE.STARTLEVEL) {
+    if (this.gamestate === GAMESTATE.TUTORIAL) {
       // Draw objects needed for tutorial
       ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
       this.kitchen.draw(ctx);
@@ -146,8 +146,7 @@ export default class GameManager {
       this.clam.draw(ctx);
       this.gameStats.draw(ctx);
       if (this.clam.bullets_held.length > 0) {
-        this.popups = [];
-        this.gamestate = GAMESTATE.BUSINESSDAY;
+        this.goToGamestate(GAMESTATE.BUSINESSDAY);
       }
     }
   }
@@ -158,7 +157,6 @@ export default class GameManager {
     // Actions for spacebar pressing to perform, based on gamestate
     document.addEventListener("keydown", (event) => {
       if (event.keyCode === 32) {
-        console.log("GAMESTATE: " + this.gamestate);
         switch (this.gamestate) {
           // ----- GAMESTATE = BUSINESSDAY -----
           case GAMESTATE.BUSINESSDAY:
@@ -171,32 +169,48 @@ export default class GameManager {
             }
             break;
           case GAMESTATE.MENU:
-            this.gamestate = GAMESTATE.STARTLEVEL;
-            console.log(this.gamestate);
-            this.kitchen.cooked_food.push(
-              // push new food item to food truck
-              new Food(
-                20,
-                this.GAME_HEIGHT - 160,
-                1,
-                FOODSTATE.INKITCHEN,
-                this.kitchen
-              )
-            );
-            this.popups.push(
-              new TutorialPopup(
-                this.GAME_WIDTH,
-                this.GAME_HEIGHT,
-                this.gameStats.business_day_timer,
-                this.gameStats.days_tax
-              )
-            );
+            this.goToGamestate(GAMESTATE.TUTORIAL);
 
           default:
           //
         }
       }
     });
+  }
+
+  goToGamestate(gamestate) {
+    console.log("GAMESTATE: " + this.gamestate);
+
+    // ----- ACTIONS TO TRANSITION TO GAMESTATE.BUSINESSDAY -----
+    if (gamestate === GAMESTATE.BUSINESSDAY) {
+      this.popups = [];
+      this.bullets = [];
+      this.customers = [];
+      this.coins = [];
+      this.gamestate = GAMESTATE.BUSINESSDAY;
+    }
+
+    if (gamestate === GAMESTATE.TUTORIAL) {
+      this.gamestate = GAMESTATE.TUTORIAL;
+      // push 1 food for tutorial purposes
+      this.kitchen.cooked_food.push(
+        new Food(
+          20,
+          this.GAME_HEIGHT - 160,
+          1,
+          FOODSTATE.INKITCHEN,
+          this.kitchen
+        )
+      );
+      this.popups.push(
+        new TutorialPopup(
+          this.GAME_WIDTH,
+          this.GAME_HEIGHT,
+          this.gameStats.business_day_timer,
+          this.gameStats.days_tax
+        )
+      );
+    }
   }
 
   updateBullets(deltaTime) {
