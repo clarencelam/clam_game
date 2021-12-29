@@ -14,7 +14,7 @@ export default class GameStats {
     this.day = 1;
 
     this.timerOn = false;
-    this.business_day_timer = 10;
+    this.business_day_timer = 5;
 
     this.advance_interval = 1000; //one second = two minute passes in timer
 

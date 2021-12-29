@@ -81,19 +81,22 @@ export default class GameManager {
         this.goToGamestate(GAMESTATE.ENDDAY);
       }
     }
+    // ------------------ GAMESTATE = NIGHT ------------------
 
     if (this.gamestate === GAMESTATE.NIGHT) {
       this.clam.update(deltaTime);
     }
 
+    // ------------------ GAMESTATE = ENDDAY ------------------
+
     if (this.gamestate === GAMESTATE.ENDDAY) {
       this.updateCustomers(deltaTime);
-      this.checkClamGettingFood();
-      this.updateBullets(this.bullets, deltaTime); // might remove
       this.coins = this.coins.filter((coin) => !coin.marked_for_deletion);
       this.updateCoins(this.coins);
       this.clam.update(deltaTime);
     }
+
+    // ------------------ GAMESTATE = TUTORIAL ------------------
 
     if (this.gamestate === GAMESTATE.TUTORIAL) {
       // Show popup, update objects needed in tutorial
@@ -105,7 +108,9 @@ export default class GameManager {
       this.updateBullets(this.bullets, deltaTime);
       this.clam.update(deltaTime);
 
-      return;
+      if (this.clam.bullets_held.length > 0) {
+        this.goToGamestate(GAMESTATE.BUSINESSDAY);
+      }
     }
   }
 
@@ -155,9 +160,6 @@ export default class GameManager {
       [...this.bullets, ...this.popups].forEach((object) => object.draw(ctx));
       this.clam.draw(ctx);
       this.gameStats.draw(ctx);
-      if (this.clam.bullets_held.length > 0) {
-        this.goToGamestate(GAMESTATE.BUSINESSDAY);
-      }
     }
   }
 
@@ -240,8 +242,8 @@ export default class GameManager {
     }
 
     if (gamestate === GAMESTATE.ENDDAY) {
-      this.gamestate = GAMESTATE.ENDDAY;
       this.kitchen.cooking = false;
+      this.gamestate = GAMESTATE.ENDDAY;
       this.popups.push(
         new EndDayPopup(
           this.GAME_WIDTH,
