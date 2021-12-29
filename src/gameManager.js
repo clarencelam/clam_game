@@ -13,13 +13,14 @@ import {
 import { CUSTSTATE } from "/src/customer";
 import { FOODSTATE } from "/src/food";
 import TutorialPopup from "/src/tutorialPopup";
+import EndDayPopup from "/src/endDayPopup";
 
 const GAMESTATE = {
   BUSINESSDAY: 0,
   NIGHT: 1,
   MENU: 2,
   TUTORIAL: 3,
-  ENDLEVEL: 4,
+  ENDDAY: 4,
   NEXTLEVEL: 5,
   GAMEOVER: 6
 };
@@ -62,6 +63,7 @@ export default class GameManager {
 
     if (this.gamestate === GAMESTATE.BUSINESSDAY) {
       this.kitchen.update(deltaTime);
+      this.generateCustomers();
       this.customers = this.customers.filter(
         (customer) => !customer.markfordelete
       );
@@ -71,6 +73,23 @@ export default class GameManager {
         (bullet) => !bullet.marked_for_deletion
       );
       this.updateBullets(this.bullets, deltaTime);
+      this.coins = this.coins.filter((coin) => !coin.marked_for_deletion);
+      this.updateCoins(this.coins);
+      this.clam.update(deltaTime);
+
+      if (this.gameStats.business_day_timer <= 0) {
+        this.goToGamestate(GAMESTATE.ENDDAY);
+      }
+    }
+
+    if (this.gamestate === GAMESTATE.NIGHT) {
+      this.clam.update(deltaTime);
+    }
+
+    if (this.gamestate === GAMESTATE.ENDDAY) {
+      this.updateCustomers(deltaTime);
+      this.checkClamGettingFood();
+      this.updateBullets(this.bullets, deltaTime); // might remove
       this.coins = this.coins.filter((coin) => !coin.marked_for_deletion);
       this.updateCoins(this.coins);
       this.clam.update(deltaTime);
@@ -91,9 +110,11 @@ export default class GameManager {
   }
 
   draw(ctx) {
-    if (this.gamestate === GAMESTATE.BUSINESSDAY) {
+    if (
+      this.gamestate === GAMESTATE.BUSINESSDAY ||
+      this.gamestate === GAMESTATE.ENDDAY
+    ) {
       ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
-
       this.kitchen.draw(ctx);
 
       [
@@ -105,8 +126,13 @@ export default class GameManager {
       this.customers.forEach((cust) => cust.draw(ctx));
 
       this.clam.draw(ctx);
-
       this.gameStats.draw(ctx);
+    }
+
+    if (this.gamestate === GAMESTATE.NIGHT) {
+      ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+      let objectstodraw = [this.kitchen, this.clam, this.gameStats];
+      objectstodraw.forEach((object) => object.draw(ctx));
     }
 
     if (this.gamestate === GAMESTATE.MENU) {
@@ -137,6 +163,15 @@ export default class GameManager {
 
   // ------------------ MESSY HELPER FUNCTIONS ------------------
 
+  eraseObjects() {
+    this.bullets = [];
+    this.coins = [];
+    this.customers = [];
+    this.kitchen.cooked_food = [];
+    this.clam.bullets_held = [];
+    this.popups = [];
+  }
+
   spacebarHandler() {
     // Actions for spacebar pressing to perform, based on gamestate
     document.addEventListener("keydown", (event) => {
@@ -152,8 +187,14 @@ export default class GameManager {
               this.clam.shooting = true;
             }
             break;
+
           case GAMESTATE.MENU:
             this.goToGamestate(GAMESTATE.TUTORIAL);
+            break;
+
+          case GAMESTATE.ENDDAY:
+            this.goToGamestate(GAMESTATE.NIGHT);
+            break;
 
           default:
           //
@@ -173,6 +214,7 @@ export default class GameManager {
       this.coins = [];
       this.gamestate = GAMESTATE.BUSINESSDAY;
       initializeCooking(this.kitchen);
+      initializeTimer(this.gameStats);
     }
 
     if (gamestate === GAMESTATE.TUTORIAL) {
@@ -195,6 +237,26 @@ export default class GameManager {
           this.gameStats.days_tax
         )
       );
+    }
+
+    if (gamestate === GAMESTATE.ENDDAY) {
+      this.gamestate = GAMESTATE.ENDDAY;
+      this.kitchen.cooking = false;
+      this.popups.push(
+        new EndDayPopup(
+          this.GAME_WIDTH,
+          this.GAME_HEIGHT,
+          this.gameStats.days_fedcusts,
+          this.gameStats.days_dollars,
+          this.gameStats.days_tax
+        )
+      );
+    }
+
+    if (gamestate === GAMESTATE.NIGHT) {
+      this.kitchen.cooking = false;
+      this.eraseObjects();
+      this.gamestate = GAMESTATE.NIGHT;
     }
   }
 
@@ -247,7 +309,9 @@ export default class GameManager {
         }
       }
     });
+  }
 
+  generateCustomers() {
     // reload customers array (temporary code, will flesh out cust gen)
     if (this.customers.length < 15) {
       this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
@@ -325,8 +389,20 @@ export default class GameManager {
     });
   }
 }
-// intitialize cooking TODO: Clean up
 
+function initializeTimer(gameStats) {
+  // if day timer is not on, turn on, and count down. If 0, end day
+  var startDayTimer = setInterval(incrementTime, gameStats.advance_interval);
+  function incrementTime() {
+    gameStats.business_day_timer--;
+    // If timer ends, end business day functions
+    if (gameStats.business_day_timer <= 0) {
+      clearInterval(startDayTimer);
+    }
+  }
+}
+
+// intitialize cooking TODO: Clean up
 function initializeCooking(kitchen) {
   if (kitchen.cooking === false) {
     var kitchenCooking = setInterval(cookFood, kitchen.cook_time);
@@ -336,6 +412,11 @@ function initializeCooking(kitchen) {
   // cookfood interval function
   function cookFood() {
     // Cook a food bullet into the kitchen if space is available
+
+    // if this.cooking is false, then stop the kitchen cooking interval loop
+    if (kitchen.cooking === false) {
+      clearInterval(kitchenCooking);
+    }
 
     if (kitchen.cooked_food.length < kitchen.max_food) {
       // Generate random y point within food truck window
@@ -356,13 +437,26 @@ function initializeCooking(kitchen) {
       );
     } else {
     }
-
-    // if this.cooking is false, then stop the kitchen cooking interval loop
-    if (kitchen.cooking === false) {
-      clearInterval(kitchenCooking);
-    }
   }
 }
+
+/* THIS FUNCTION IN THE GameManager class does not work: the gameStats.business_day_timer only increments one time and stops
+  initializeTimer() {
+    // if day timer is not on, turn on, and count down. If 0, clear timer
+    var startDayTimer = setInterval(
+      incrementTime(this.gameStats),
+      this.gameStats.advance_interval
+    );
+    function incrementTime(stats) {
+      stats.business_day_timer--;
+      // If timer ends, end business day functions
+      if (stats.business_day_timer <= 0) {
+        clearInterval(startDayTimer);
+      }
+      return stats.business_day_timer
+    }
+  }
+  */
 
 /*
   clickToChangeGamestate(object, gamestate) {

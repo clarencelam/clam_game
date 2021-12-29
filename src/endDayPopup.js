@@ -10,8 +10,8 @@ export default class EndDayPopup {
     this.numCoins = numCoins;
     this.tax = tax;
 
-    this.screen_centered_x = this.x_pos - this.width / 2;
-    this.screen_centered_y = this.y_pos - this.height / 2;
+    this.screen_centered_x = this.x_pos / 2 - this.width / 2;
+    this.screen_centered_y = this.y_pos / 2 - this.height / 2;
 
     this.box_background_color = "#B3EFF7";
     this.box_outline_color = "black";
@@ -62,7 +62,7 @@ export default class EndDayPopup {
       this.screen_centered_y + 120
     );
     ctx.fillText(
-      "Press SPACEBAR to pay the day's tax.",
+      "Press SPACEBAR to continue.",
       this.screen_centered_x + 10,
       this.screen_centered_y + 150
     );
