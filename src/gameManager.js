@@ -25,7 +25,8 @@ export const GAMESTATE = {
   ENDDAY: 4,
   NEXTLEVEL: 5,
   GAMEOVER: 6,
-  TAXHOUSE: 7
+  TAXHOUSE: 7,
+  INHOME: 8
 };
 
 export default class GameManager {
@@ -88,7 +89,11 @@ export default class GameManager {
     }
     // ------------------ GAMESTATE = NIGHT ------------------
 
-    if (this.gamestate === GAMESTATE.NIGHT || GAMESTATE.TAXHOUSE) {
+    if (
+      this.gamestate === GAMESTATE.NIGHT ||
+      GAMESTATE.TAXHOUSE ||
+      GAMESTATE.INHOME
+    ) {
       this.clam.update(deltaTime);
     }
 
@@ -139,22 +144,6 @@ export default class GameManager {
       this.gameStats.draw(ctx);
     }
 
-    if (this.gamestate === GAMESTATE.NIGHT) {
-      ctx.drawImage(this.night_bg, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
-      // Draw square to represent the tax building
-      ctx.strokeRect(this.GAME_WIDTH / 2, this.GAME_HEIGHT - 350, 200, 300);
-      ctx.fillText(
-        "TAX CENTER",
-        this.GAME_WIDTH / 2 + 50,
-        this.GAME_HEIGHT - 300
-      );
-      // Draw portals for buildings
-      this.portals.forEach((object) => object.draw(ctx));
-
-      let objectstodraw = [this.kitchen, this.clam, this.gameStats];
-      objectstodraw.forEach((object) => object.draw(ctx));
-    }
-
     if (this.gamestate === GAMESTATE.MENU) {
       ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
       ctx.font = "40px Arial";
@@ -177,7 +166,52 @@ export default class GameManager {
       this.gameStats.draw(ctx);
     }
 
+    if (this.gamestate === GAMESTATE.NIGHT) {
+      ctx.drawImage(this.night_bg, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+      // Draw square to represent the tax building
+      ctx.strokeRect(this.GAME_WIDTH / 2, this.GAME_HEIGHT - 350, 200, 300);
+      ctx.fillText(
+        "TAX CENTER",
+        this.GAME_WIDTH / 2 + 50,
+        this.GAME_HEIGHT - 300
+      );
+
+      let objectstodraw = [this.kitchen, this.clam, this.gameStats];
+      objectstodraw.forEach((object) => object.draw(ctx));
+      // Draw portals for buildings
+      this.portals.forEach((object) => object.draw(ctx));
+    }
+
     if (this.gamestate === GAMESTATE.TAXHOUSE) {
+      ctx.drawImage(
+        document.getElementById("taxroom"),
+        0,
+        0,
+        this.GAME_WIDTH,
+        this.GAME_HEIGHT
+      );
+      this.clam.draw(ctx);
+      this.portals.forEach((object) => object.draw(ctx));
+    }
+
+    if (this.gamestate === GAMESTATE.INHOME) {
+      ctx.drawImage(
+        document.getElementById("room"),
+        0,
+        0,
+        this.GAME_WIDTH,
+        this.GAME_HEIGHT
+      );
+      // Draw square to represent bed
+      ctx.drawImage(
+        document.getElementById("bed"),
+        this.GAME_WIDTH / 2,
+        this.GAME_HEIGHT / 2,
+        200,
+        300
+      );
+      ctx.fillText("START NEXT DAY", this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2);
+
       this.clam.draw(ctx);
       this.portals.forEach((object) => object.draw(ctx));
     }
@@ -220,33 +254,35 @@ export default class GameManager {
             break;
 
           case GAMESTATE.NIGHT:
-            // for each portal, if intersect with clam, go to portal.gamestate
-            this.portals.forEach((portal) => {
-              if (detectRectCollision(portal, this.clam)) {
-                console.log("teleport!");
-                console.log(portal);
-                //this.gamestate = GAMESTATE.TAXHOUSE;
-                this.goToGamestate(portal.getGamestate());
-                console.log(this.gamestate);
-              }
-            });
+            this.checkAndTriggerPortals(this.portals);
             break;
 
           case GAMESTATE.TAXHOUSE:
-            this.portals.forEach((portal) => {
-              if (detectRectCollision(portal, this.clam)) {
-                console.log("teleport!");
-                console.log(portal);
-                //this.gamestate = GAMESTATE.TAXHOUSE;
-                this.goToGamestate(portal.getGamestate());
-                console.log(this.gamestate);
-              }
-            });
+            this.checkAndTriggerPortals(this.portals);
+            this.clam.x_pos = this.GAME_WIDTH / 2 + 10;
+            this.clam.y_pos = this.GAME_HEIGHT - 150;
+            break;
+
+          case GAMESTATE.INHOME:
+            this.checkAndTriggerPortals(this.portals);
+            this.clam.x_pos = 250;
+            this.clam.y_pos = this.GAME_HEIGHT - 100;
             break;
 
           default:
           //
         }
+      }
+    });
+  }
+
+  checkAndTriggerPortals(portals) {
+    // for each portal, if intersect with clam, go to portal.gamestate
+    portals.forEach((portal) => {
+      if (detectRectCollision(portal, this.clam)) {
+        console.log(portal);
+        this.goToGamestate(portal.getGamestate());
+        console.log("entered: " + this.gamestate);
       }
     });
   }
@@ -313,18 +349,29 @@ export default class GameManager {
           GAMESTATE.TAXHOUSE
         )
       );
+      this.portals.push(
+        new Portal(250, this.GAME_HEIGHT - 100, GAMESTATE.INHOME)
+      );
     }
 
     if (gamestate === GAMESTATE.TAXHOUSE) {
       this.eraseObjects();
       this.gamestate = GAMESTATE.TAXHOUSE;
       this.portals.push(
-        new Portal(
-          this.GAME_WIDTH / 2 + 10,
-          this.GAME_HEIGHT - 150,
-          GAMESTATE.NIGHT
-        )
+        new Portal(50, this.GAME_HEIGHT - 100, GAMESTATE.NIGHT)
       );
+      this.clam.x_pos = 50;
+      this.clam.y_pos = this.GAME_HEIGHT - 100;
+    }
+
+    if (gamestate === GAMESTATE.INHOME) {
+      this.eraseObjects();
+      this.gamestate = GAMESTATE.INHOME;
+      this.portals.push(
+        new Portal(50, this.GAME_HEIGHT - 100, GAMESTATE.NIGHT)
+      );
+      this.clam.x_pos = 50;
+      this.clam.y_pos = this.GAME_HEIGHT - 100;
     }
   }
 
