@@ -8,7 +8,8 @@ import Food from "/src/food";
 import {
   detectCollision,
   detectOverlapCollision,
-  randomIntFromInterval
+  randomIntFromInterval,
+  detectRectCollision
 } from "/src/gameMechanics";
 import { CUSTSTATE } from "/src/customer";
 import { FOODSTATE } from "/src/food";
@@ -16,7 +17,7 @@ import TutorialPopup from "/src/tutorialPopup";
 import EndDayPopup from "/src/endDayPopup";
 import Portal from "/src/portal";
 
-const GAMESTATE = {
+export const GAMESTATE = {
   BUSINESSDAY: 0,
   NIGHT: 1,
   MENU: 2,
@@ -87,7 +88,7 @@ export default class GameManager {
     }
     // ------------------ GAMESTATE = NIGHT ------------------
 
-    if (this.gamestate === GAMESTATE.NIGHT) {
+    if (this.gamestate === GAMESTATE.NIGHT || GAMESTATE.TAXHOUSE) {
       this.clam.update(deltaTime);
     }
 
@@ -175,6 +176,11 @@ export default class GameManager {
       this.clam.draw(ctx);
       this.gameStats.draw(ctx);
     }
+
+    if (this.gamestate === GAMESTATE.TAXHOUSE) {
+      this.clam.draw(ctx);
+      this.portals.forEach((object) => object.draw(ctx));
+    }
   }
 
   // ------------------ MESSY HELPER FUNCTIONS ------------------
@@ -186,6 +192,7 @@ export default class GameManager {
     this.kitchen.cooked_food = [];
     this.clam.bullets_held = [];
     this.popups = [];
+    this.portals = [];
   }
 
   spacebarHandler() {
@@ -210,6 +217,31 @@ export default class GameManager {
 
           case GAMESTATE.ENDDAY:
             this.goToGamestate(GAMESTATE.NIGHT);
+            break;
+
+          case GAMESTATE.NIGHT:
+            // for each portal, if intersect with clam, go to portal.gamestate
+            this.portals.forEach((portal) => {
+              if (detectRectCollision(portal, this.clam)) {
+                console.log("teleport!");
+                console.log(portal);
+                //this.gamestate = GAMESTATE.TAXHOUSE;
+                this.goToGamestate(portal.getGamestate());
+                console.log(this.gamestate);
+              }
+            });
+            break;
+
+          case GAMESTATE.TAXHOUSE:
+            this.portals.forEach((portal) => {
+              if (detectRectCollision(portal, this.clam)) {
+                console.log("teleport!");
+                console.log(portal);
+                //this.gamestate = GAMESTATE.TAXHOUSE;
+                this.goToGamestate(portal.getGamestate());
+                console.log(this.gamestate);
+              }
+            });
             break;
 
           default:
@@ -279,6 +311,18 @@ export default class GameManager {
           this.GAME_WIDTH / 2 + 10,
           this.GAME_HEIGHT - 150,
           GAMESTATE.TAXHOUSE
+        )
+      );
+    }
+
+    if (gamestate === GAMESTATE.TAXHOUSE) {
+      this.eraseObjects();
+      this.gamestate = GAMESTATE.TAXHOUSE;
+      this.portals.push(
+        new Portal(
+          this.GAME_WIDTH / 2 + 10,
+          this.GAME_HEIGHT - 150,
+          GAMESTATE.NIGHT
         )
       );
     }

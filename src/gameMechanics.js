@@ -46,6 +46,29 @@ export function detectOverlapCollision(bullet, object) {
   }
 }
 
+export function detectRectCollision(objectone, objecttwo) {
+  let topOfBullet = objectone.y_pos;
+  let bottomOfBullet = objectone.y_pos + objectone.height;
+  let leftOfBullet = objectone.x_pos;
+  let rightOfBullet = objectone.x_pos + objectone.width;
+
+  let topOfObject = objecttwo.y_pos;
+  let bottomOfObject = objecttwo.y_pos + objecttwo.height;
+  let leftOfObject = objecttwo.x_pos;
+  let rightOfObject = objecttwo.x_pos + objecttwo.width;
+
+  if (
+    bottomOfBullet > topOfObject && // bottom of bullet is under the top of obj
+    topOfBullet < bottomOfObject &&
+    rightOfBullet > leftOfObject &&
+    leftOfBullet < rightOfObject
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 export function foodShrink(bullet) {
   const biteSize = 10;
   bullet.size = bullet.size - biteSize;

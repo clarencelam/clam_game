@@ -17,7 +17,6 @@ export default class InputHandler {
           break;
         // NOTE: Spacebar actions are handled in GameManager.spacebarHandler()
         default:
-          console.log("Error - keydown not recognized");
       }
     });
     document.addEventListener("keyup", (event) => {
@@ -38,7 +37,6 @@ export default class InputHandler {
           clam.shooting = false;
           break;
         default:
-          console.log("Error - keyup not recognized");
       }
     });
     // click listener

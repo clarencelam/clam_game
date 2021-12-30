@@ -9,6 +9,8 @@ export default class Clam {
     this.x_pos = gameWidth / 2;
     this.y_pos = gameHeight / 3;
     this.size = 75;
+    this.height = 75; // specific width/height values for rect collision detection
+    this.width = 75;
     this.x_speed = 5;
     this.y_speed = 4;
 
