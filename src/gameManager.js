@@ -34,6 +34,7 @@ export default class GameManager {
     this.clam = new Clam(this.GAME_WIDTH, this.GAME_HEIGHT);
 
     this.background = document.getElementById("background");
+    this.night_bg = document.getElementById("night_bg");
     this.bullets = [];
     this.coins = [];
     this.popups = [];
@@ -135,7 +136,7 @@ export default class GameManager {
     }
 
     if (this.gamestate === GAMESTATE.NIGHT) {
-      ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+      ctx.drawImage(this.night_bg, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
       let objectstodraw = [this.kitchen, this.clam, this.gameStats];
       objectstodraw.forEach((object) => object.draw(ctx));
     }
