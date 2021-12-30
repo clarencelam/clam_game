@@ -16,6 +16,7 @@ import { FOODSTATE } from "/src/food";
 import TutorialPopup from "/src/tutorialPopup";
 import EndDayPopup from "/src/endDayPopup";
 import Portal from "/src/portal";
+import BeginDayPopup from "./beginDayPopup";
 
 export const GAMESTATE = {
   BUSINESSDAY: 0,
@@ -47,7 +48,7 @@ export default class GameManager {
     this.kitchen = new Kitchen(this.GAME_WIDTH, this.GAME_HEIGHT);
     //this.click = { x: null, y: null };
 
-    this.gamestate = GAMESTATE.ENDDAY; // For now, just start with game running
+    this.gamestate = GAMESTATE.MENU; // For now, just start with game running
 
     new InputHandler(ctx, this.clam);
     this.spacebarHandler();
@@ -58,162 +59,162 @@ export default class GameManager {
   }
 
   update(deltaTime) {
-    if (this.gameStats.coins < 0) {
-      this.gamestate = GAMESTATE.GAMEOVER;
-    }
-    if (this.gamestate === GAMESTATE.GAMEOVER) {
-      return;
-    }
+    switch (this.gamestate) {
+      // ----- GAMESTATE = BUSINESSDAY -----
+      case GAMESTATE.BUSINESSDAY:
+        this.kitchen.update(deltaTime);
+        this.generateCustomers();
+        this.customers = this.customers.filter(
+          (customer) => !customer.markfordelete
+        );
+        this.updateCustomers(deltaTime);
+        this.checkClamGettingFood();
+        this.bullets = this.bullets.filter(
+          (bullet) => !bullet.marked_for_deletion
+        );
+        this.updateBullets(this.bullets, deltaTime);
+        this.coins = this.coins.filter((coin) => !coin.marked_for_deletion);
+        this.updateCoins(this.coins);
+        this.clam.update(deltaTime);
 
-    // ------------------ GAMESTATE = BUSINESSDAY ------------------
+        if (this.gameStats.business_day_timer <= 0) {
+          this.goToGamestate(GAMESTATE.ENDDAY);
+          console.log("TIMER UP");
+        }
+        break;
 
-    if (this.gamestate === GAMESTATE.BUSINESSDAY) {
-      this.kitchen.update(deltaTime);
-      this.generateCustomers();
-      this.customers = this.customers.filter(
-        (customer) => !customer.markfordelete
-      );
-      this.updateCustomers(deltaTime);
-      this.checkClamGettingFood();
-      this.bullets = this.bullets.filter(
-        (bullet) => !bullet.marked_for_deletion
-      );
-      this.updateBullets(this.bullets, deltaTime);
-      this.coins = this.coins.filter((coin) => !coin.marked_for_deletion);
-      this.updateCoins(this.coins);
-      this.clam.update(deltaTime);
+      case GAMESTATE.NIGHT:
+      case GAMESTATE.TAXHOUSE:
+      case GAMESTATE.INHOME:
+        this.clam.update(deltaTime);
+        break;
 
-      if (this.gameStats.business_day_timer <= 0) {
-        this.goToGamestate(GAMESTATE.ENDDAY);
-      }
-    }
-    // ------------------ GAMESTATE = NIGHT ------------------
+      case GAMESTATE.ENDDAY:
+        this.updateCustomers(deltaTime);
+        this.coins = this.coins.filter((coin) => !coin.marked_for_deletion);
+        this.updateCoins(this.coins);
+        this.clam.update(deltaTime);
+        break;
 
-    if (
-      this.gamestate === GAMESTATE.NIGHT ||
-      GAMESTATE.TAXHOUSE ||
-      GAMESTATE.INHOME
-    ) {
-      this.clam.update(deltaTime);
-    }
+      case GAMESTATE.TUTORIAL:
+      case GAMESTATE.NEXTLEVEL:
+        // Show popup, update objects needed in tutorial
+        this.kitchen.update(deltaTime);
+        this.checkClamGettingFood();
+        this.bullets = this.bullets.filter(
+          (bullet) => !bullet.marked_for_deletion
+        );
+        this.updateBullets(this.bullets, deltaTime);
+        this.clam.update(deltaTime);
 
-    // ------------------ GAMESTATE = ENDDAY ------------------
+        if (this.clam.bullets_held.length > 0) {
+          this.goToGamestate(GAMESTATE.BUSINESSDAY);
+          console.log("clam picked up bullet, go to business day");
+        }
+        break;
 
-    if (this.gamestate === GAMESTATE.ENDDAY) {
-      this.updateCustomers(deltaTime);
-      this.coins = this.coins.filter((coin) => !coin.marked_for_deletion);
-      this.updateCoins(this.coins);
-      this.clam.update(deltaTime);
-    }
-
-    // ------------------ GAMESTATE = TUTORIAL ------------------
-
-    if (this.gamestate === GAMESTATE.TUTORIAL) {
-      // Show popup, update objects needed in tutorial
-      this.kitchen.update(deltaTime);
-      this.checkClamGettingFood();
-      this.bullets = this.bullets.filter(
-        (bullet) => !bullet.marked_for_deletion
-      );
-      this.updateBullets(this.bullets, deltaTime);
-      this.clam.update(deltaTime);
-
-      if (this.clam.bullets_held.length > 0) {
-        this.goToGamestate(GAMESTATE.BUSINESSDAY);
-      }
+      default:
     }
   }
 
   draw(ctx) {
-    if (
-      this.gamestate === GAMESTATE.BUSINESSDAY ||
-      this.gamestate === GAMESTATE.ENDDAY
-    ) {
-      ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
-      this.kitchen.draw(ctx);
+    switch (this.gamestate) {
+      case GAMESTATE.BUSINESSDAY:
+      case GAMESTATE.ENDDAY:
+        ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+        this.kitchen.draw(ctx);
 
-      [
-        ...this.customers,
-        ...this.bullets,
-        ...this.coins,
-        ...this.popups
-      ].forEach((object) => object.draw(ctx));
-      this.customers.forEach((cust) => cust.draw(ctx));
+        [
+          ...this.customers,
+          ...this.bullets,
+          ...this.coins,
+          ...this.popups
+        ].forEach((object) => object.draw(ctx));
+        this.customers.forEach((cust) => cust.draw(ctx));
 
-      this.clam.draw(ctx);
-      this.gameStats.draw(ctx);
-    }
+        this.clam.draw(ctx);
+        this.gameStats.draw(ctx);
+        break;
 
-    if (this.gamestate === GAMESTATE.MENU) {
-      ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
-      ctx.font = "40px Arial";
-      ctx.fillStyle = "white";
-      ctx.textAlign = "center";
+      case GAMESTATE.NIGHT:
+        ctx.drawImage(this.night_bg, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+        // Draw square to represent the tax building
+        ctx.strokeRect(this.GAME_WIDTH / 2, this.GAME_HEIGHT - 350, 200, 300);
+        ctx.fillText(
+          "TAX CENTER",
+          this.GAME_WIDTH / 2 + 50,
+          this.GAME_HEIGHT - 300
+        );
 
-      ctx.fillText(
-        "Press SPACEBAR to start game",
-        this.GAME_WIDTH / 2,
-        this.GAME_HEIGHT / 2 + 50
-      );
-    }
+        let objectstodraw = [this.kitchen, this.clam, this.gameStats];
+        objectstodraw.forEach((object) => object.draw(ctx));
+        // Draw portals for buildings
+        this.portals.forEach((object) => object.draw(ctx));
+        break;
 
-    if (this.gamestate === GAMESTATE.TUTORIAL) {
-      // Draw objects needed for tutorial
-      ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
-      this.kitchen.draw(ctx);
-      [...this.bullets, ...this.popups].forEach((object) => object.draw(ctx));
-      this.clam.draw(ctx);
-      this.gameStats.draw(ctx);
-    }
+      case GAMESTATE.TAXHOUSE:
+        ctx.drawImage(
+          document.getElementById("taxroom"),
+          0,
+          0,
+          this.GAME_WIDTH,
+          this.GAME_HEIGHT
+        );
+        this.clam.draw(ctx);
+        this.portals.forEach((object) => object.draw(ctx));
+        break;
 
-    if (this.gamestate === GAMESTATE.NIGHT) {
-      ctx.drawImage(this.night_bg, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
-      // Draw square to represent the tax building
-      ctx.strokeRect(this.GAME_WIDTH / 2, this.GAME_HEIGHT - 350, 200, 300);
-      ctx.fillText(
-        "TAX CENTER",
-        this.GAME_WIDTH / 2 + 50,
-        this.GAME_HEIGHT - 300
-      );
+      case GAMESTATE.INHOME:
+        ctx.drawImage(
+          document.getElementById("room"),
+          0,
+          0,
+          this.GAME_WIDTH,
+          this.GAME_HEIGHT
+        );
+        // Draw square to represent bed
+        ctx.drawImage(
+          document.getElementById("bed"),
+          this.GAME_WIDTH / 2,
+          this.GAME_HEIGHT / 2,
+          200,
+          300
+        );
+        ctx.fillText(
+          "START NEXT DAY",
+          this.GAME_WIDTH / 2,
+          this.GAME_HEIGHT / 2
+        );
 
-      let objectstodraw = [this.kitchen, this.clam, this.gameStats];
-      objectstodraw.forEach((object) => object.draw(ctx));
-      // Draw portals for buildings
-      this.portals.forEach((object) => object.draw(ctx));
-    }
+        this.clam.draw(ctx);
+        this.portals.forEach((object) => object.draw(ctx));
+        break;
 
-    if (this.gamestate === GAMESTATE.TAXHOUSE) {
-      ctx.drawImage(
-        document.getElementById("taxroom"),
-        0,
-        0,
-        this.GAME_WIDTH,
-        this.GAME_HEIGHT
-      );
-      this.clam.draw(ctx);
-      this.portals.forEach((object) => object.draw(ctx));
-    }
+      case GAMESTATE.TUTORIAL:
+      case GAMESTATE.NEXTLEVEL:
+        // Draw objects needed for tutorial
+        ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+        this.kitchen.draw(ctx);
+        [...this.bullets, ...this.popups].forEach((object) => object.draw(ctx));
+        this.clam.draw(ctx);
+        this.gameStats.draw(ctx);
 
-    if (this.gamestate === GAMESTATE.INHOME) {
-      ctx.drawImage(
-        document.getElementById("room"),
-        0,
-        0,
-        this.GAME_WIDTH,
-        this.GAME_HEIGHT
-      );
-      // Draw square to represent bed
-      ctx.drawImage(
-        document.getElementById("bed"),
-        this.GAME_WIDTH / 2,
-        this.GAME_HEIGHT / 2,
-        200,
-        300
-      );
-      ctx.fillText("START NEXT DAY", this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2);
+        break;
 
-      this.clam.draw(ctx);
-      this.portals.forEach((object) => object.draw(ctx));
+      case GAMESTATE.MENU:
+        ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+        ctx.font = "40px Arial";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+
+        ctx.fillText(
+          "Press SPACEBAR to start game",
+          this.GAME_WIDTH / 2,
+          this.GAME_HEIGHT / 2 + 50
+        );
+        break;
+
+      default:
     }
   }
 
@@ -287,11 +288,20 @@ export default class GameManager {
     });
   }
 
+  cookOneFood() {
+    this.kitchen.cooked_food.push(
+      new Food(20, this.GAME_HEIGHT - 160, 1, FOODSTATE.INKITCHEN, this.kitchen)
+    );
+  }
+
   goToGamestate(gamestate) {
     console.log("GAMESTATE: " + this.gamestate);
 
     // ----- ACTIONS TO TRANSITION TO GAMESTATE.BUSINESSDAY -----
-    if (gamestate === GAMESTATE.BUSINESSDAY) {
+    if (
+      gamestate === GAMESTATE.BUSINESSDAY &&
+      (this.gamestate === GAMESTATE.TUTORIAL || GAMESTATE.NEXTLEVEL)
+    ) {
       this.popups = [];
       this.bullets = [];
       this.customers = [];
@@ -325,7 +335,9 @@ export default class GameManager {
 
     if (gamestate === GAMESTATE.ENDDAY) {
       this.kitchen.cooking = false;
+      this.gameStats.timerOn = false;
       this.gamestate = GAMESTATE.ENDDAY;
+      this.gameStats.resetLevel();
       this.popups.push(
         new EndDayPopup(
           this.GAME_WIDTH,
@@ -335,6 +347,23 @@ export default class GameManager {
           this.gameStats.days_tax
         )
       );
+    }
+
+    if (gamestate === GAMESTATE.NEXTLEVEL) {
+      this.eraseObjects();
+      this.gameStats.incrementLevel();
+      this.gamestate = GAMESTATE.NEXTLEVEL;
+      // throw new day popup
+      this.popups.push(
+        new BeginDayPopup(
+          this.GAME_WIDTH,
+          this.GAME_HEIGHT,
+          this.gameStats.day,
+          this.gameStats.business_day_timer,
+          this.gameStats.days_tax
+        )
+      );
+      this.cookOneFood();
     }
 
     // ----- ACTIONS TO TRANSITION TO GAMESTATE.NIGHT -----
@@ -370,6 +399,7 @@ export default class GameManager {
       this.portals.push(
         new Portal(50, this.GAME_HEIGHT - 100, GAMESTATE.NIGHT)
       );
+      this.portals.push(new Portal(600, 600, GAMESTATE.NEXTLEVEL));
       this.clam.x_pos = 50;
       this.clam.y_pos = this.GAME_HEIGHT - 100;
     }
@@ -430,6 +460,7 @@ export default class GameManager {
     // reload customers array (temporary code, will flesh out cust gen)
     if (this.customers.length < 15) {
       this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
+      console.log(this.customers);
     }
   }
 
@@ -507,12 +538,15 @@ export default class GameManager {
 
 function initializeTimer(gameStats) {
   // if day timer is not on, turn on, and count down. If 0, end day
-  var startDayTimer = setInterval(incrementTime, gameStats.advance_interval);
-  function incrementTime() {
-    gameStats.business_day_timer--;
-    // If timer ends, end business day functions
-    if (gameStats.business_day_timer <= 0) {
-      clearInterval(startDayTimer);
+  if (gameStats.timerOn === false) {
+    var startDayTimer = setInterval(incrementTime, gameStats.advance_interval);
+    gameStats.timerOn = true;
+    function incrementTime() {
+      gameStats.business_day_timer--;
+      // If timer ends, end business day functions
+      if (gameStats.business_day_timer <= 0) {
+        clearInterval(startDayTimer);
+      }
     }
   }
 }
