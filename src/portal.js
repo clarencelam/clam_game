@@ -1,7 +1,8 @@
 export default class Portal {
   // Class to represent coin objects
   constructor(x, y, gotogamestate) {
-    this.image = document.getElementById("portal.png");
+    this.image = document.getElementById("portal");
+    this.gotogamestate = gotogamestate;
     this.x_pos = x;
     this.y_pos = y;
     this.height = 180;

@@ -14,6 +14,7 @@ import { CUSTSTATE } from "/src/customer";
 import { FOODSTATE } from "/src/food";
 import TutorialPopup from "/src/tutorialPopup";
 import EndDayPopup from "/src/endDayPopup";
+import Portal from "/src/portal";
 
 const GAMESTATE = {
   BUSINESSDAY: 0,
@@ -22,7 +23,8 @@ const GAMESTATE = {
   TUTORIAL: 3,
   ENDDAY: 4,
   NEXTLEVEL: 5,
-  GAMEOVER: 6
+  GAMEOVER: 6,
+  TAXHOUSE: 7
 };
 
 export default class GameManager {
@@ -39,10 +41,11 @@ export default class GameManager {
     this.coins = [];
     this.popups = [];
     this.customers = [];
+    this.portals = [];
     this.kitchen = new Kitchen(this.GAME_WIDTH, this.GAME_HEIGHT);
     //this.click = { x: null, y: null };
 
-    this.gamestate = GAMESTATE.MENU; // For now, just start with game running
+    this.gamestate = GAMESTATE.ENDDAY; // For now, just start with game running
 
     new InputHandler(ctx, this.clam);
     this.spacebarHandler();
@@ -137,6 +140,16 @@ export default class GameManager {
 
     if (this.gamestate === GAMESTATE.NIGHT) {
       ctx.drawImage(this.night_bg, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+      // Draw square to represent the tax building
+      ctx.strokeRect(this.GAME_WIDTH / 2, this.GAME_HEIGHT - 350, 200, 300);
+      ctx.fillText(
+        "TAX CENTER",
+        this.GAME_WIDTH / 2 + 50,
+        this.GAME_HEIGHT - 300
+      );
+      // Draw portals for buildings
+      this.portals.forEach((object) => object.draw(ctx));
+
       let objectstodraw = [this.kitchen, this.clam, this.gameStats];
       objectstodraw.forEach((object) => object.draw(ctx));
     }
@@ -256,10 +269,18 @@ export default class GameManager {
       );
     }
 
+    // ----- ACTIONS TO TRANSITION TO GAMESTATE.NIGHT -----
     if (gamestate === GAMESTATE.NIGHT) {
       this.kitchen.cooking = false;
       this.eraseObjects();
       this.gamestate = GAMESTATE.NIGHT;
+      this.portals.push(
+        new Portal(
+          this.GAME_WIDTH / 2 + 10,
+          this.GAME_HEIGHT - 150,
+          GAMESTATE.TAXHOUSE
+        )
+      );
     }
   }
 
