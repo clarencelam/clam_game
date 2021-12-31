@@ -397,11 +397,11 @@ export default class GameManager {
       this.eraseObjects();
       this.gamestate = GAMESTATE.INHOME;
       this.portals.push(
-        new Portal(50, this.GAME_HEIGHT - 100, GAMESTATE.NIGHT)
+        new Portal(950, this.GAME_HEIGHT - 450, GAMESTATE.NIGHT)
       );
       this.portals.push(new Portal(600, 600, GAMESTATE.NEXTLEVEL));
-      this.clam.x_pos = 50;
-      this.clam.y_pos = this.GAME_HEIGHT - 100;
+      this.clam.x_pos = 1000;
+      this.clam.y_pos = this.GAME_HEIGHT - 450;
     }
   }
 
