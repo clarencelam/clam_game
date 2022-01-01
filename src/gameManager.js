@@ -33,6 +33,7 @@ export const GAMESTATE = {
 
 export default class GameManager {
   constructor(gameWidth, gameHeight, ctx) {
+    this.ctx = ctx;
     this.GAME_WIDTH = gameWidth;
     this.GAME_HEIGHT = gameHeight;
     this.gameStats = new GameStats();
@@ -85,8 +86,8 @@ export default class GameManager {
         }
         break;
 
-      case GAMESTATE.NIGHT:
       case GAMESTATE.TAXHOUSE:
+      case GAMESTATE.NIGHT:
       case GAMESTATE.INHOME:
         this.clam.update(deltaTime);
         break;
@@ -118,7 +119,6 @@ export default class GameManager {
       default:
     }
   }
-
   draw(ctx) {
     switch (this.gamestate) {
       case GAMESTATE.BUSINESSDAY:
@@ -165,6 +165,10 @@ export default class GameManager {
         this.npcs.forEach((npc) => npc.draw(ctx));
         this.clam.draw(ctx);
         this.portals.forEach((object) => object.draw(ctx));
+
+        this.checkTaxMan(ctx);
+        this.gameStats.draw(ctx);
+
         break;
 
       case GAMESTATE.INHOME:
@@ -223,6 +227,30 @@ export default class GameManager {
 
   // ------------------ MESSY HELPER FUNCTIONS ------------------
 
+  checkTaxMan(ctx) {
+    ctx.fillText("Taxes Paid - SAM: true", 500, 350);
+    ctx.fillText("Taxes Paid - CLAM: " + this.gameStats.daysTaxPaid, 500, 400);
+
+    let taxguy = this.npcs[0];
+    if (
+      detectRectCollision(this.clam, taxguy) &&
+      this.gameStats.daysTaxPaid === false
+    ) {
+      taxguy.drawPopup(ctx);
+    }
+  }
+
+  payTaxMan() {
+    let taxguy = this.npcs[0];
+    if (
+      detectRectCollision(this.clam, taxguy) &&
+      this.gameStats.daysTaxPaid === false
+    ) {
+      this.gameStats.daysTaxPaid = true;
+      this.gameStats.dollars = this.gameStats.dollars - this.gameStats.days_tax;
+    }
+  }
+
   eraseObjects() {
     this.bullets = [];
     this.coins = [];
@@ -263,9 +291,9 @@ export default class GameManager {
             break;
 
           case GAMESTATE.TAXHOUSE:
+            this.payTaxMan();
             this.checkAndTriggerPortals(this.portals);
-            this.clam.x_pos = this.GAME_WIDTH / 2 + 10;
-            this.clam.y_pos = this.GAME_HEIGHT - 150;
+
             break;
 
           case GAMESTATE.INHOME:
@@ -372,6 +400,11 @@ export default class GameManager {
 
     // ----- ACTIONS TO TRANSITION TO GAMESTATE.NIGHT -----
     if (gamestate === GAMESTATE.NIGHT) {
+      // if clam came from Tax House, place him at taxhouse portal
+      if (this.gamestate === GAMESTATE.TAXHOUSE) {
+        this.clam.x_pos = this.GAME_WIDTH / 2 + 10;
+        this.clam.y_pos = this.GAME_HEIGHT - 150;
+      }
       this.kitchen.cooking = false;
       this.eraseObjects();
       this.gamestate = GAMESTATE.NIGHT;

@@ -1,6 +1,6 @@
 export default class GameStats {
   constructor() {
-    this.daysTaxPaidSuccessfully = false;
+    this.daysTaxPaid = false;
 
     this.dollars = 0;
     this.day = 1;
@@ -28,6 +28,7 @@ export default class GameStats {
     this.days_fedcusts = 0;
     this.timerOn = false;
     this.business_day_timer = 10;
+    this.daysTaxPaid = false;
   }
 
   incrementLevel() {
