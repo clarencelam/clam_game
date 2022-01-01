@@ -17,6 +17,7 @@ import TutorialPopup from "/src/tutorialPopup";
 import EndDayPopup from "/src/endDayPopup";
 import Portal from "/src/portal";
 import BeginDayPopup from "./beginDayPopup";
+import TaxMan from "./taxMan";
 
 export const GAMESTATE = {
   BUSINESSDAY: 0,
@@ -43,12 +44,13 @@ export default class GameManager {
     this.bullets = [];
     this.coins = [];
     this.popups = [];
+    this.npcs = [];
     this.customers = [];
     this.portals = [];
     this.kitchen = new Kitchen(this.GAME_WIDTH, this.GAME_HEIGHT);
     //this.click = { x: null, y: null };
 
-    this.gamestate = GAMESTATE.MENU; // For now, just start with game running
+    this.gamestate = GAMESTATE.ENDDAY; // For now, just start with game running
 
     new InputHandler(ctx, this.clam);
     this.spacebarHandler();
@@ -160,6 +162,7 @@ export default class GameManager {
           this.GAME_WIDTH,
           this.GAME_HEIGHT
         );
+        this.npcs.forEach((npc) => npc.draw(ctx));
         this.clam.draw(ctx);
         this.portals.forEach((object) => object.draw(ctx));
         break;
@@ -228,6 +231,7 @@ export default class GameManager {
     this.clam.bullets_held = [];
     this.popups = [];
     this.portals = [];
+    this.npcs = [];
   }
 
   spacebarHandler() {
@@ -391,6 +395,7 @@ export default class GameManager {
       );
       this.clam.x_pos = 50;
       this.clam.y_pos = this.GAME_HEIGHT - 100;
+      this.npcs.push(new TaxMan(800, 500, this.gameStats.days_tax));
     }
 
     if (gamestate === GAMESTATE.INHOME) {
