@@ -3,6 +3,7 @@ import Clam from "/src/clam";
 import InputHandler from "/src/input";
 import Kitchen from "/src/kitchen";
 import Customer from "/src/customer";
+import Thug from "/src/thug";
 import Coin from "/src/coin";
 import Food from "/src/food";
 import {
@@ -47,11 +48,12 @@ export default class GameManager {
     this.popups = [];
     this.npcs = [];
     this.customers = [];
+    this.thugs = [];
     this.portals = [];
     this.kitchen = new Kitchen(this.GAME_WIDTH, this.GAME_HEIGHT);
     //this.click = { x: null, y: null };
 
-    this.gamestate = GAMESTATE.ENDDAY; // For now, just start with game running
+    this.gamestate = GAMESTATE.MENU; // For now, just start with game running
 
     new InputHandler(ctx, this.clam);
     this.spacebarHandler();
@@ -67,6 +69,9 @@ export default class GameManager {
       case GAMESTATE.BUSINESSDAY:
         this.kitchen.update(deltaTime);
         this.generateCustomers();
+        this.generateThugs();
+        this.thugs = this.thugs.filter((thug) => !thug.markfordelete);
+        this.thugs.forEach((thug) => thug.update());
         this.customers = this.customers.filter(
           (customer) => !customer.markfordelete
         );
@@ -93,9 +98,18 @@ export default class GameManager {
         break;
 
       case GAMESTATE.ENDDAY:
+        this.kitchen.update(deltaTime);
         this.updateCustomers(deltaTime);
         this.coins = this.coins.filter((coin) => !coin.marked_for_deletion);
+
         this.updateCoins(this.coins);
+        this.checkClamGettingFood();
+
+        this.bullets = this.bullets.filter(
+          (bullet) => !bullet.marked_for_deletion
+        );
+        this.updateBullets(this.bullets, deltaTime);
+
         this.clam.update(deltaTime);
         break;
 
@@ -125,6 +139,8 @@ export default class GameManager {
       case GAMESTATE.ENDDAY:
         ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
         this.kitchen.draw(ctx);
+
+        this.thugs.forEach((thug) => thug.draw(ctx));
 
         [
           ...this.customers,
@@ -496,9 +512,15 @@ export default class GameManager {
 
   generateCustomers() {
     // reload customers array (temporary code, will flesh out cust gen)
-    if (this.customers.length < 15) {
+    if (this.customers.length < 10) {
       this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
-      console.log(this.customers);
+    }
+  }
+
+  generateThugs() {
+    if (this.thugs.length < 1) {
+      this.thugs.push(new Thug(this.GAME_WIDTH, this.GAME_HEIGHT));
+      console.log(this.thugs);
     }
   }
 
