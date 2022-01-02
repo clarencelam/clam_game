@@ -67,6 +67,8 @@ export default class GameManager {
     switch (this.gamestate) {
       // ----- GAMESTATE = BUSINESSDAY -----
       case GAMESTATE.BUSINESSDAY:
+        this.thugs.forEach((thug) => initializeThugRandomMovement(thug));
+
         this.kitchen.update(deltaTime);
         this.generateCustomers();
         this.generateThugs();
@@ -606,6 +608,35 @@ function initializeTimer(gameStats) {
       // If timer ends, end business day functions
       if (gameStats.business_day_timer <= 0) {
         clearInterval(startDayTimer);
+      }
+    }
+  }
+}
+
+function initializeThugRandomMovement(thug) {
+  if (thug.randomMovementOn === false) {
+    var startRandomMovement = setInterval(
+      randomizeDirection,
+      thug.randomMovementInterval
+    );
+    thug.randomMovementOn = true;
+    function randomizeDirection() {
+      let randomInt = randomIntFromInterval(1, 6);
+      if (randomInt === 1) {
+        thug.x_direction = 1;
+      } else if (randomInt === 2) {
+        thug.x_direction = 0;
+      } else if (randomInt === 3) {
+        thug.x_direction = -1;
+      } else if (randomInt === 4) {
+        thug.y_direction = 1;
+      } else if (randomInt === 5) {
+        thug.y_direction = 0;
+      } else if (randomInt === 6) {
+        thug.y_direction = -1;
+      }
+      if (thug.randomMovementOn === false) {
+        clearInterval(startRandomMovement);
       }
     }
   }

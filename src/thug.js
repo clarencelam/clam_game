@@ -23,12 +23,31 @@ export default class Thug {
     this.x_pos = 10;
     this.y_pos = 10;
     this.markfordelete = false;
+    this.randomMovementOn = false;
+    this.randomMovementInterval = 1000;
   }
 
   update(deltaTime) {
     // Movement
+    if (this.state === THIEFSTATE.ACTIVE) {
+      this.bounceBorders();
+    }
     this.x_pos = this.x_pos + this.speed * this.x_direction;
     this.y_pos = this.y_pos + this.speed * this.y_direction;
+  }
+  bounceBorders() {
+    if (this.x_pos <= 0) {
+      this.x_direction = this.x_direction * -1;
+    }
+    if (this.x_pos + this.width >= this.GAMEWIDTH) {
+      this.x_direction = this.x_direction * -1;
+    }
+    if (this.y_pos <= 0) {
+      this.y_direction = this.y_direction * -1;
+    }
+    if (this.y_pos + this.height >= this.GAMEHEIGHT) {
+      this.y_direction = this.y_direction * -1;
+    }
   }
 
   draw(ctx) {
@@ -42,6 +61,13 @@ export default class Thug {
         this.img = this.img_frame2;
       }
     }
-    ctx.drawImage(this.img, this.x_pos, this.y_pos, this.width, this.height);
+    if (this.x_direction === 1) {
+      ctx.translate(this.x_pos + this.width, this.y_pos);
+      ctx.scale(-1, 1);
+      ctx.drawImage(this.img, 0, 0, this.width, this.height);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    } else {
+      ctx.drawImage(this.img, this.x_pos, this.y_pos, this.width, this.height);
+    }
   }
 }
