@@ -14,6 +14,8 @@ import {
 } from "/src/gameMechanics";
 import { CUSTSTATE } from "/src/customer";
 import { FOODSTATE } from "/src/food";
+import { THIEFSTATE } from "/src/thug";
+
 import TutorialPopup from "/src/tutorialPopup";
 import EndDayPopup from "/src/endDayPopup";
 import Portal from "/src/portal";
@@ -621,19 +623,26 @@ function initializeThugRandomMovement(thug) {
     );
     thug.randomMovementOn = true;
     function randomizeDirection() {
-      let randomInt = randomIntFromInterval(1, 6);
+      let randomInt = randomIntFromInterval(1, 7);
       if (randomInt === 1) {
         thug.x_direction = 1;
+        thug.state = THIEFSTATE.WALKING;
       } else if (randomInt === 2) {
         thug.x_direction = 0;
       } else if (randomInt === 3) {
         thug.x_direction = -1;
+        thug.state = THIEFSTATE.WALKING;
       } else if (randomInt === 4) {
         thug.y_direction = 1;
+        thug.state = THIEFSTATE.WALKING;
       } else if (randomInt === 5) {
         thug.y_direction = 0;
       } else if (randomInt === 6) {
         thug.y_direction = -1;
+        thug.state = THIEFSTATE.WALKING;
+      } else if (randomInt === 7) {
+        thug.y_direction = 0;
+        thug.x_direction = 0;
       }
       if (thug.randomMovementOn === false) {
         clearInterval(startRandomMovement);
