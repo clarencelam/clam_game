@@ -1,5 +1,10 @@
 import FoodSprite from "/src/foodSprite";
 
+export const CLAMSTATE = {
+  ACTIVE: 0,
+  STUNNED: 1
+};
+
 export default class Clam {
   constructor(gameWidth, gameHeight) {
     this.img = document.getElementById("clam_default");
@@ -24,6 +29,13 @@ export default class Clam {
     this.facing = 1; // 1 = facing right, -1 = facing left
 
     this.shooting = false;
+
+    this.push_velocity = 30;
+    this.pushed_right = false;
+    this.pushed_left = false;
+  }
+  resetPushVelocity() {
+    this.push_velocity = 30;
   }
 
   update(deltaTime) {
@@ -48,6 +60,50 @@ export default class Clam {
     this.bullets_held.forEach((bullet, index) => {
       bullet.update(this.x_pos, this.y_pos, this.facing, index);
     });
+
+    if (this.clamWithinBorders() === false) {
+      this.pushed_left = false;
+      this.pushed_right = false;
+    }
+
+    if (this.pushed_right === true) {
+      this.x_pos = this.x_pos + this.push_velocity;
+      this.push_velocity = this.push_velocity - 1;
+      this.moving_left = false;
+      if (this.push_velocity === 0) {
+        this.pushed_right = false;
+        this.resetPushVelocity();
+      }
+    } else if (this.pushed_left === true) {
+      this.x_pos = this.x_pos - this.push_velocity;
+      this.push_velocity = this.push_velocity - 1;
+      this.moving_right = false;
+      if (this.push_velocity === 0) {
+        this.pushed_left = false;
+        this.resetPushVelocity();
+      }
+    }
+  }
+
+  clamWithinBorders() {
+    if (
+      this.x_pos > 0 &&
+      this.x_pos + this.width < this.GAMEWIDTH &&
+      this.y_pos > 0 &&
+      this.y_pos + this.height < this.GAMEHEIGHT
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  hitBy(thug) {
+    if (this.facing === -1) {
+      this.pushed_right = true;
+    } else {
+      this.pushed_left = true;
+    }
   }
 
   newBullet() {

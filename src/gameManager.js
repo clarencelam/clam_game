@@ -69,13 +69,14 @@ export default class GameManager {
     switch (this.gamestate) {
       // ----- GAMESTATE = BUSINESSDAY -----
       case GAMESTATE.BUSINESSDAY:
+        this.generateThugs();
+
         this.thugs.forEach((thug) => initializeThugRandomMovement(thug));
+        this.updateThugs();
+        this.thugs = this.thugs.filter((thug) => !thug.markfordelete);
 
         this.kitchen.update(deltaTime);
         this.generateCustomers();
-        this.generateThugs();
-        this.thugs = this.thugs.filter((thug) => !thug.markfordelete);
-        this.thugs.forEach((thug) => thug.update());
         this.customers = this.customers.filter(
           (customer) => !customer.markfordelete
         );
@@ -247,30 +248,6 @@ export default class GameManager {
 
   // ------------------ MESSY HELPER FUNCTIONS ------------------
 
-  checkTaxMan(ctx) {
-    ctx.fillText("Taxes Paid - SAM: true", 500, 350);
-    ctx.fillText("Taxes Paid - CLAM: " + this.gameStats.daysTaxPaid, 500, 400);
-
-    let taxguy = this.npcs[0];
-    if (
-      detectRectCollision(this.clam, taxguy) &&
-      this.gameStats.daysTaxPaid === false
-    ) {
-      taxguy.drawPopup(ctx);
-    }
-  }
-
-  payTaxMan() {
-    let taxguy = this.npcs[0];
-    if (
-      detectRectCollision(this.clam, taxguy) &&
-      this.gameStats.daysTaxPaid === false
-    ) {
-      this.gameStats.daysTaxPaid = true;
-      this.gameStats.dollars = this.gameStats.dollars - this.gameStats.days_tax;
-    }
-  }
-
   eraseObjects() {
     this.bullets = [];
     this.coins = [];
@@ -327,23 +304,6 @@ export default class GameManager {
         }
       }
     });
-  }
-
-  checkAndTriggerPortals(portals) {
-    // for each portal, if intersect with clam, go to portal.gamestate
-    portals.forEach((portal) => {
-      if (detectRectCollision(portal, this.clam)) {
-        console.log(portal);
-        this.goToGamestate(portal.getGamestate());
-        console.log("entered: " + this.gamestate);
-      }
-    });
-  }
-
-  cookOneFood() {
-    this.kitchen.cooked_food.push(
-      new Food(20, this.GAME_HEIGHT - 160, 1, FOODSTATE.INKITCHEN, this.kitchen)
-    );
   }
 
   goToGamestate(gamestate) {
@@ -514,6 +474,22 @@ export default class GameManager {
     });
   }
 
+  updateThugs(deltaTime) {
+    this.thugs.forEach((thug) => {
+      thug.update();
+      if (
+        detectRectCollision(thug, this.clam) &&
+        thug.state !== THIEFSTATE.ATTACKING &&
+        this.clam.pushed_right === false &&
+        this.clam.pushed_left === false
+      ) {
+        thug.state = THIEFSTATE.ATTACKING;
+        this.clam.hitBy(thug);
+        console.log("clam and thug hit");
+      }
+    });
+  }
+
   generateCustomers() {
     // reload customers array (temporary code, will flesh out cust gen)
     if (this.customers.length < 10) {
@@ -537,6 +513,23 @@ export default class GameManager {
         this.gameStats.days_dollars = this.gameStats.days_dollars + coin.value;
       }
     });
+  }
+
+  checkAndTriggerPortals(portals) {
+    // for each portal, if intersect with clam, go to portal.gamestate
+    portals.forEach((portal) => {
+      if (detectRectCollision(portal, this.clam)) {
+        console.log(portal);
+        this.goToGamestate(portal.getGamestate());
+        console.log("entered: " + this.gamestate);
+      }
+    });
+  }
+
+  cookOneFood() {
+    this.kitchen.cooked_food.push(
+      new Food(20, this.GAME_HEIGHT - 160, 1, FOODSTATE.INKITCHEN, this.kitchen)
+    );
   }
 
   triggerCustEatingFood(customer, bullet) {
@@ -598,6 +591,30 @@ export default class GameManager {
       }
     });
   }
+
+  checkTaxMan(ctx) {
+    ctx.fillText("Taxes Paid - SAM: true", 500, 350);
+    ctx.fillText("Taxes Paid - CLAM: " + this.gameStats.daysTaxPaid, 500, 400);
+
+    let taxguy = this.npcs[0];
+    if (
+      detectRectCollision(this.clam, taxguy) &&
+      this.gameStats.daysTaxPaid === false
+    ) {
+      taxguy.drawPopup(ctx);
+    }
+  }
+
+  payTaxMan() {
+    let taxguy = this.npcs[0];
+    if (
+      detectRectCollision(this.clam, taxguy) &&
+      this.gameStats.daysTaxPaid === false
+    ) {
+      this.gameStats.daysTaxPaid = true;
+      this.gameStats.dollars = this.gameStats.dollars - this.gameStats.days_tax;
+    }
+  }
 }
 
 function initializeTimer(gameStats) {
@@ -624,6 +641,7 @@ function initializeThugRandomMovement(thug) {
     thug.randomMovementOn = true;
     function randomizeDirection() {
       let randomInt = randomIntFromInterval(1, 7);
+      // each roll outcome results in a different change in direction
       if (randomInt === 1) {
         thug.x_direction = 1;
         thug.state = THIEFSTATE.WALKING;
