@@ -2,7 +2,8 @@ import FoodSprite from "/src/foodSprite";
 
 export const CLAMSTATE = {
   ACTIVE: 0,
-  STUNNED: 1
+  STUNNED: 1,
+  DEAD: 2
 };
 
 export default class Clam {
@@ -34,6 +35,7 @@ export default class Clam {
     this.pushed_right = false;
     this.pushed_left = false;
   }
+
   resetPushVelocity() {
     this.push_velocity = 30;
   }
@@ -95,14 +97,6 @@ export default class Clam {
       return true;
     } else {
       return false;
-    }
-  }
-
-  hitBy(thug) {
-    if (this.facing === -1) {
-      this.pushed_right = true;
-    } else {
-      this.pushed_left = true;
     }
   }
 

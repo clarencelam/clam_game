@@ -13,6 +13,7 @@ export default class GameStats {
     this.days_dollars = 0;
     this.days_fedcusts = 0;
     this.days_tax = 2;
+    this.lives = 3;
   }
 
   gameOver() {

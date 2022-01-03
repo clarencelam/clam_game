@@ -21,6 +21,7 @@ import EndDayPopup from "/src/endDayPopup";
 import Portal from "/src/portal";
 import BeginDayPopup from "./beginDayPopup";
 import TaxMan from "./taxMan";
+import { CLAMSTATE } from "./clam";
 
 export const GAMESTATE = {
   BUSINESSDAY: 0,
@@ -66,6 +67,9 @@ export default class GameManager {
   }
 
   update(deltaTime) {
+    if (this.gameStats.lives <= 0) {
+      this.goToGamestate(GAMESTATE.GAMEOVER);
+    }
     switch (this.gamestate) {
       // ----- GAMESTATE = BUSINESSDAY -----
       case GAMESTATE.BUSINESSDAY:
@@ -378,6 +382,10 @@ export default class GameManager {
       this.cookOneFood();
     }
 
+    if (gamestate === GAMESTATE.GAMEOVER) {
+      this.eraseObjects();
+    }
+
     // ----- ACTIONS TO TRANSITION TO GAMESTATE.NIGHT -----
     if (gamestate === GAMESTATE.NIGHT) {
       // if clam came from Tax House, place him at taxhouse portal
@@ -475,16 +483,34 @@ export default class GameManager {
   }
 
   updateThugs(deltaTime) {
+    let swingdelay = 200;
     this.thugs.forEach((thug) => {
       thug.update();
-      if (
-        detectRectCollision(thug, this.clam) &&
-        thug.state !== THIEFSTATE.ATTACKING &&
-        this.clam.pushed_right === false &&
-        this.clam.pushed_left === false
-      ) {
+      if (detectRectCollision(thug, this.clam) && thug.attacking === false) {
+        thug.attacking = true;
         thug.state = THIEFSTATE.ATTACKING;
-        this.clam.hitBy(thug);
+        thug.randomMovementOn = false;
+        thug.prepAttack();
+        setTimeout(function () {
+          thug.img = thug.img_attack2;
+        }, swingdelay);
+        setTimeout(function () {
+          thug.randomMovementOn = true;
+          thug.attacking = false;
+          thug.state = THIEFSTATE.WALKING;
+        }, 1000);
+
+        setTimeout(
+          function (clam) {
+            if (clam.facing === -1) {
+              clam.pushed_right = true;
+            } else {
+              clam.pushed_left = true;
+            }
+          },
+          swingdelay,
+          this.clam
+        );
         console.log("clam and thug hit");
       }
     });
@@ -634,19 +660,26 @@ function initializeTimer(gameStats) {
 
 function initializeThugRandomMovement(thug) {
   if (thug.randomMovementOn === false) {
+    thug.randomMovementOn = true;
     var startRandomMovement = setInterval(
       randomizeDirection,
-      thug.randomMovementInterval
+      thug.randomMovementInterval,
+      thug
     );
-    thug.randomMovementOn = true;
-    function randomizeDirection() {
-      let randomInt = randomIntFromInterval(1, 7);
+    function randomizeDirection(thug) {
+      if (thug.randomMovementOn === false) {
+        clearInterval(startRandomMovement);
+      }
+      let randomInt = randomIntFromInterval(1, 6);
       // each roll outcome results in a different change in direction
       if (randomInt === 1) {
         thug.x_direction = 1;
         thug.state = THIEFSTATE.WALKING;
       } else if (randomInt === 2) {
         thug.x_direction = 0;
+        if (thug.y_direction === 0) {
+          thug.state = THIEFSTATE.STANDING;
+        }
       } else if (randomInt === 3) {
         thug.x_direction = -1;
         thug.state = THIEFSTATE.WALKING;
@@ -655,15 +688,12 @@ function initializeThugRandomMovement(thug) {
         thug.state = THIEFSTATE.WALKING;
       } else if (randomInt === 5) {
         thug.y_direction = 0;
+        if (thug.x_direction === 0) {
+          thug.state = THIEFSTATE.STANDING;
+        }
       } else if (randomInt === 6) {
         thug.y_direction = -1;
         thug.state = THIEFSTATE.WALKING;
-      } else if (randomInt === 7) {
-        thug.y_direction = 0;
-        thug.x_direction = 0;
-      }
-      if (thug.randomMovementOn === false) {
-        clearInterval(startRandomMovement);
       }
     }
   }

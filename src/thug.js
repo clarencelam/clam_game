@@ -19,14 +19,17 @@ export default class Thug {
     this.img_attack1 = document.getElementById("thugA4");
     this.img_attack2 = document.getElementById("thugA5");
 
-    this.height = 65;
-    this.width = 60;
-    this.atk_height = 80;
-    this.atk_width = 90;
+    this.scaleup = 20;
+    this.height = 65 + this.scaleup;
+    this.width = 60 + this.scaleup;
+    this.atk_height = 80 + this.scaleup;
+    this.atk_width = 90 + this.scaleup;
 
     this.speed = 2;
     this.x_direction = 1;
     this.y_direction = 1;
+
+    this.img = document.getElementById("thugA1");
 
     this.x_pos = 10;
     this.y_pos = 10;
@@ -37,20 +40,27 @@ export default class Thug {
     this.attacking = false;
   }
 
+  prepAttack() {
+    this.img = this.img_attack1;
+  }
+
+  goBackWalking() {
+    this.randomMovementOn = true;
+    this.attacking = false;
+    this.state = THIEFSTATE.WALKING;
+    console.log("thug should go Back Walking, ready for next attack");
+  }
+
   update(deltaTime) {
     // check if thug is stopped
-    if (this.x_direction === 0 && this.y_direction === 0) {
-      this.state = THIEFSTATE.STANDING;
-    }
 
     switch (this.state) {
       case THIEFSTATE.WALKING:
+        this.attacking = false;
         this.bounceBorders();
 
-        if (this.randomMovementOn === true) {
-          this.x_pos = this.x_pos + this.speed * this.x_direction;
-          this.y_pos = this.y_pos + this.speed * this.y_direction;
-        }
+        this.x_pos = this.x_pos + this.speed * this.x_direction;
+        this.y_pos = this.y_pos + this.speed * this.y_direction;
 
         const newtime = new Date();
         let s = newtime.getMilliseconds();
@@ -62,18 +72,6 @@ export default class Thug {
         break;
 
       case THIEFSTATE.ATTACKING:
-        if (this.attacking === false) {
-          this.attacking = true;
-          this.randomMovementOn = false;
-          this.img = this.img_attack2;
-          var pauseFrame = setTimeout(goBackWalking, 1000);
-          function goBackWalking() {
-            this.state = THIEFSTATE.WALKING;
-            this.randomMovementOn = true;
-            this.attacking = false;
-            clearTimeout(pauseFrame);
-          }
-        }
         break;
 
       case THIEFSTATE.STANDING:
@@ -103,7 +101,6 @@ export default class Thug {
   draw(ctx) {
     // swap the image frames per second when cust is walking
     if (this.state === THIEFSTATE.ATTACKING) {
-      this.img = this.img_attack2;
       if (this.x_direction === 1) {
         ctx.translate(this.x_pos + this.atk_width, this.y_pos);
         ctx.scale(-1, 1);
