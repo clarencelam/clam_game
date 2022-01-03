@@ -32,41 +32,56 @@ export default class Thug {
     this.y_pos = 10;
     this.markfordelete = false;
     this.randomMovementOn = false;
-    this.randomMovementInterval = 1000;
+    this.randomMovementInterval = 3000;
+
+    this.attacking = false;
   }
 
   update(deltaTime) {
-    // Movement
+    // check if thug is stopped
     if (this.x_direction === 0 && this.y_direction === 0) {
       this.state = THIEFSTATE.STANDING;
     }
-    if (this.state === THIEFSTATE.WALKING) {
-      this.bounceBorders();
-      this.x_pos = this.x_pos + this.speed * this.x_direction;
-      this.y_pos = this.y_pos + this.speed * this.y_direction;
 
-      const newtime = new Date();
-      let s = newtime.getMilliseconds();
-      if (s < 500) {
-        this.img = this.img_frame1;
-      } else {
-        this.img = this.img_frame2;
-      }
-    } else if (
-      this.state === THIEFSTATE.ATTACKING &&
-      this.attacking === false
-    ) {
-      this.attacking = true;
-      this.randomMovementOn = false;
-      this.img = this.img_attack2;
-      setTimeout(goBackWalking, 1000);
-    } else if (this.state === THIEFSTATE.STANDING) {
-      this.img = this.img_standing;
-    }
-    function goBackWalking() {
-      this.state = THIEFSTATE.WALKING;
-      this.randomMovementOn = true;
-      this.attacking = false;
+    switch (this.state) {
+      case THIEFSTATE.WALKING:
+        this.bounceBorders();
+
+        if (this.randomMovementOn === true) {
+          this.x_pos = this.x_pos + this.speed * this.x_direction;
+          this.y_pos = this.y_pos + this.speed * this.y_direction;
+        }
+
+        const newtime = new Date();
+        let s = newtime.getMilliseconds();
+        if (s < 500) {
+          this.img = this.img_frame1;
+        } else {
+          this.img = this.img_frame2;
+        }
+        break;
+
+      case THIEFSTATE.ATTACKING:
+        if (this.attacking === false) {
+          this.attacking = true;
+          this.randomMovementOn = false;
+          this.img = this.img_attack2;
+          var pauseFrame = setTimeout(goBackWalking, 1000);
+          function goBackWalking() {
+            this.state = THIEFSTATE.WALKING;
+            this.randomMovementOn = true;
+            this.attacking = false;
+            clearTimeout(pauseFrame);
+          }
+        }
+        break;
+
+      case THIEFSTATE.STANDING:
+        this.img = this.img_standing;
+        break;
+
+      default:
+      //
     }
   }
 
