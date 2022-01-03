@@ -21,6 +21,7 @@ export default class GameStats {
     this.day = 1;
     this.dollars = 0;
     this.days_tax = 2;
+    this.resetLevel();
   }
 
   resetLevel() {

@@ -67,9 +67,6 @@ export default class GameManager {
   }
 
   update(deltaTime) {
-    if (this.gameStats.lives <= 0) {
-      this.goToGamestate(GAMESTATE.GAMEOVER);
-    }
     switch (this.gamestate) {
       // ----- GAMESTATE = BUSINESSDAY -----
       case GAMESTATE.BUSINESSDAY:
@@ -113,6 +110,9 @@ export default class GameManager {
 
         this.updateCoins(this.coins);
         this.checkClamGettingFood();
+        this.thugs.forEach((thug) => initializeThugRandomMovement(thug));
+        this.updateThugs();
+        this.thugs = this.thugs.filter((thug) => !thug.markfordelete);
 
         this.bullets = this.bullets.filter(
           (bullet) => !bullet.marked_for_deletion
@@ -139,6 +139,22 @@ export default class GameManager {
         }
         break;
 
+      case GAMESTATE.GAMEOVER:
+        this.kitchen.update(deltaTime);
+        this.updateCustomers(deltaTime);
+        this.coins = this.coins.filter((coin) => !coin.marked_for_deletion);
+
+        this.updateCoins(this.coins);
+        this.checkClamGettingFood();
+
+        this.bullets = this.bullets.filter(
+          (bullet) => !bullet.marked_for_deletion
+        );
+        this.updateBullets(this.bullets, deltaTime);
+
+        this.clam.update(deltaTime);
+        break;
+
       default:
     }
   }
@@ -161,6 +177,25 @@ export default class GameManager {
 
         this.clam.draw(ctx);
         this.gameStats.draw(ctx);
+        break;
+
+      case GAMESTATE.GAMEOVER:
+        ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+        this.kitchen.draw(ctx);
+
+        [
+          ...this.customers,
+          ...this.thugs,
+          ...this.bullets,
+          ...this.coins,
+          ...this.popups
+        ].forEach((object) => object.draw(ctx));
+        this.customers.forEach((cust) => cust.draw(ctx));
+
+        this.clam.draw(ctx);
+        this.gameStats.draw(ctx);
+        ctx.fillText("GAME OVER", this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2);
+
         break;
 
       case GAMESTATE.NIGHT:
@@ -303,6 +338,13 @@ export default class GameManager {
             this.clam.y_pos = this.GAME_HEIGHT - 100;
             break;
 
+          case GAMESTATE.GAMEOVER:
+            this.eraseObjects();
+            this.gameStats.gameOver();
+            this.gamestate = GAMESTATE.MENU;
+
+            break;
+
           default:
           //
         }
@@ -383,7 +425,10 @@ export default class GameManager {
     }
 
     if (gamestate === GAMESTATE.GAMEOVER) {
+      this.gamestate = GAMESTATE.GAMEOVER;
       this.eraseObjects();
+      this.kitchen.cooking = false;
+      this.gameStats.timerOn = false;
     }
 
     // ----- ACTIONS TO TRANSITION TO GAMESTATE.NIGHT -----
@@ -501,17 +546,23 @@ export default class GameManager {
         }, 1000);
 
         setTimeout(
-          function (clam) {
+          function (clam, gamestats) {
             if (clam.facing === -1) {
               clam.pushed_right = true;
             } else {
               clam.pushed_left = true;
             }
+            gamestats.lives = gamestats.lives - 1;
           },
           swingdelay,
-          this.clam
+          this.clam,
+          this.gameStats
         );
         console.log("clam and thug hit");
+        console.log("Clam's lives left: " + this.gameStats.lives);
+        if (this.gameStats.lives <= 0) {
+          this.goToGamestate(GAMESTATE.GAMEOVER);
+        }
       }
     });
   }
@@ -524,7 +575,7 @@ export default class GameManager {
   }
 
   generateThugs() {
-    if (this.thugs.length < 1) {
+    if (this.thugs.length < 5) {
       this.thugs.push(new Thug(this.GAME_WIDTH, this.GAME_HEIGHT));
       console.log(this.thugs);
     }
