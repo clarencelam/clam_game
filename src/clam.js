@@ -12,8 +12,9 @@ export default class Clam {
     this.flipped_img = document.getElementById("clam_flipped");
     this.GAMEWIDTH = gameWidth;
     this.GAMEHEIGHT = gameHeight;
-    this.x_pos = gameWidth / 2;
-    this.y_pos = gameHeight / 3;
+    this.x_pos = gameWidth / 2 + 10;
+    this.y_pos = gameHeight - 100;
+
     this.size = 75;
     this.height = 75; // specific width/height values for rect collision detection
     this.width = 75;

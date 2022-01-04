@@ -13,7 +13,7 @@ export default class GameStats {
     this.days_dollars = 0;
     this.days_fedcusts = 0;
     this.days_tax = 2;
-    this.lives = 3;
+    this.lives = 10;
   }
 
   gameOver() {
@@ -21,6 +21,7 @@ export default class GameStats {
     this.day = 1;
     this.dollars = 0;
     this.days_tax = 2;
+    this.lives = 3;
     this.resetLevel();
   }
 

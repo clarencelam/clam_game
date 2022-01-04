@@ -1,3 +1,5 @@
+import { GAMESTATE } from "./gameManager";
+
 export const THIEFSTATE = {
   WALKING: 0,
   STEALING: 1,
@@ -51,9 +53,11 @@ export default class Thug {
     console.log("thug should go Back Walking, ready for next attack");
   }
 
-  update(deltaTime) {
+  update(gamestate) {
     // check if thug is stopped
-
+    if (gamestate === GAMESTATE.ENDDAY || gamestate === GAMESTATE.GAMEOVER) {
+      this.state = THIEFSTATE.STANDING;
+    }
     switch (this.state) {
       case THIEFSTATE.WALKING:
         this.attacking = false;

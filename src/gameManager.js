@@ -296,6 +296,7 @@ export default class GameManager {
     this.popups = [];
     this.portals = [];
     this.npcs = [];
+    this.thugs = [];
   }
 
   spacebarHandler() {
@@ -444,7 +445,7 @@ export default class GameManager {
       this.portals.push(
         new Portal(
           this.GAME_WIDTH / 2 + 10,
-          this.GAME_HEIGHT - 150,
+          this.GAME_HEIGHT - 100,
           GAMESTATE.TAXHOUSE
         )
       );
@@ -530,7 +531,7 @@ export default class GameManager {
   updateThugs(deltaTime) {
     let swingdelay = 200;
     this.thugs.forEach((thug) => {
-      thug.update();
+      thug.update(this.gamestate);
       if (detectRectCollision(thug, this.clam) && thug.attacking === false) {
         thug.attacking = true;
         thug.state = THIEFSTATE.ATTACKING;
@@ -575,7 +576,7 @@ export default class GameManager {
   }
 
   generateThugs() {
-    if (this.thugs.length < 5) {
+    if (this.thugs.length < 1) {
       this.thugs.push(new Thug(this.GAME_WIDTH, this.GAME_HEIGHT));
       console.log(this.thugs);
     }
