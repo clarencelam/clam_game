@@ -40,7 +40,7 @@ export default class GameManager {
     this.ctx = ctx;
     this.GAME_WIDTH = gameWidth;
     this.GAME_HEIGHT = gameHeight;
-    this.gameStats = new GameStats();
+    this.gameStats = new GameStats(this.GAME_WIDTH, this.GAME_HEIGHT);
 
     this.clam = new Clam(this.GAME_WIDTH, this.GAME_HEIGHT);
 
