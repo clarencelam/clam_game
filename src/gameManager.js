@@ -32,7 +32,8 @@ export const GAMESTATE = {
   NEXTLEVEL: 5,
   GAMEOVER: 6,
   TAXHOUSE: 7,
-  INHOME: 8
+  INHOME: 8,
+  INCITY1: 9
 };
 
 export default class GameManager {
@@ -46,6 +47,8 @@ export default class GameManager {
 
     this.background = document.getElementById("background");
     this.night_bg = document.getElementById("night_bg");
+    this.nighttown1 = document.getElementById("nighttown1");
+
     this.bullets = [];
     this.coins = [];
     this.popups = [];
@@ -56,7 +59,7 @@ export default class GameManager {
     this.kitchen = new Kitchen(this.GAME_WIDTH, this.GAME_HEIGHT);
     //this.click = { x: null, y: null };
 
-    this.gamestate = GAMESTATE.MENU; // For now, just start with game running
+    this.gamestate = GAMESTATE.ENDDAY; // For now, just start with game running
 
     new InputHandler(ctx, this.clam);
     this.spacebarHandler();
@@ -98,9 +101,16 @@ export default class GameManager {
         break;
 
       case GAMESTATE.TAXHOUSE:
-      case GAMESTATE.NIGHT:
       case GAMESTATE.INHOME:
+      case GAMESTATE.INCITY1:
         this.clam.update(deltaTime);
+        break;
+
+      case GAMESTATE.NIGHT:
+        this.clam.update(deltaTime);
+        if (this.clam.x_pos + this.clam.width >= this.GAME_WIDTH) {
+          this.goToGamestate(GAMESTATE.INCITY1);
+        }
         break;
 
       case GAMESTATE.ENDDAY:
@@ -212,6 +222,14 @@ export default class GameManager {
         objectstodraw.forEach((object) => object.draw(ctx));
         // Draw portals for buildings
         this.portals.forEach((object) => object.draw(ctx));
+        break;
+
+      case GAMESTATE.INCITY1:
+        ctx.drawImage(this.nighttown1, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+        [...this.popups, this.clam, this.gameStats].forEach((object) =>
+          object.draw(ctx)
+        );
+
         break;
 
       case GAMESTATE.TAXHOUSE:
@@ -373,15 +391,7 @@ export default class GameManager {
     if (gamestate === GAMESTATE.TUTORIAL) {
       this.gamestate = GAMESTATE.TUTORIAL;
       // push 1 food for tutorial purposes
-      this.kitchen.cooked_food.push(
-        new Food(
-          20,
-          this.GAME_HEIGHT - 160,
-          1,
-          FOODSTATE.INKITCHEN,
-          this.kitchen
-        )
-      );
+      this.cookOneFood();
       this.popups.push(
         new TutorialPopup(
           this.GAME_WIDTH,
@@ -452,6 +462,14 @@ export default class GameManager {
       this.portals.push(
         new Portal(250, this.GAME_HEIGHT - 100, GAMESTATE.INHOME)
       );
+    }
+
+    if (gamestate === GAMESTATE.INCITY1) {
+      if (this.gamestate === GAMESTATE.NIGHT) {
+        this.clam.x_pos = 1;
+      }
+      this.eraseObjects();
+      this.gamestate = GAMESTATE.INCITY1;
     }
 
     if (gamestate === GAMESTATE.TAXHOUSE) {
@@ -606,7 +624,13 @@ export default class GameManager {
 
   cookOneFood() {
     this.kitchen.cooked_food.push(
-      new Food(20, this.GAME_HEIGHT - 160, 1, FOODSTATE.INKITCHEN, this.kitchen)
+      new Food(
+        this.kitchen.x_pos + 40,
+        this.kitchen.y_pos + this.kitchen.truck_height - 80,
+        1,
+        FOODSTATE.INKITCHEN,
+        this.kitchen
+      )
     );
   }
 

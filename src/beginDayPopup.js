@@ -36,6 +36,9 @@ export default class BeginDayPopup {
   draw(ctx) {
     // draw box to put info in
     ctx.fillStyle = this.box_background_color;
+    ctx.textAlign = "center";
+    ctx.font = "25px Tahoma";
+
     ctx.fillRect(
       this.screen_centered_x - this.width / 2,
       this.screen_centered_y - this.height / 2,

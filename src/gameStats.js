@@ -8,7 +8,7 @@ export default class GameStats {
     this.day = 1;
 
     this.timerOn = false;
-    this.business_day_timer = 30;
+    this.business_day_timer = 5;
 
     this.advance_interval = 1000; //one second = two minute passes in timer
 
@@ -51,7 +51,7 @@ export default class GameStats {
     this.days_dollars = 0;
     this.days_fedcusts = 0;
     this.timerOn = false;
-    this.business_day_timer = 30;
+    this.business_day_timer = 20;
     this.daysTaxPaid = false;
   }
 
@@ -63,7 +63,7 @@ export default class GameStats {
 
   update() {}
   draw(ctx) {
-    ctx.textAlign = "center";
+    ctx.textAlign = "right";
     ctx.font = "25px Tahoma";
     ctx.fillStyle = "black";
     ctx.drawImage(this.sign_img, this.display_xpos, this.display_ypos);
@@ -76,7 +76,7 @@ export default class GameStats {
       this.coin_size,
       this.coin_size
     );
-    ctx.fillText(this.dollars, this.start_xpos + 50, this.text_ypos);
+    ctx.fillText(this.dollars, this.start_xpos + 120, this.text_ypos);
 
     // DRAW BUSINESS DAY TIMER
     ctx.drawImage(
@@ -88,7 +88,7 @@ export default class GameStats {
     );
     ctx.fillText(
       this.business_day_timer,
-      this.start_xpos + 250,
+      this.start_xpos + 280,
       this.text_ypos
     );
 
@@ -100,7 +100,7 @@ export default class GameStats {
       30,
       30
     );
-    ctx.fillText(this.lives, this.start_xpos + 400, this.text_ypos);
+    ctx.fillText(this.lives, this.start_xpos + 420, this.text_ypos);
 
     // DRAW DAY #
     ctx.drawImage(
@@ -110,7 +110,7 @@ export default class GameStats {
       30,
       30
     );
-    ctx.fillText("DAY " + this.day, this.start_xpos + 870, this.text_ypos);
+    ctx.fillText("DAY " + this.day, this.start_xpos + 900, this.text_ypos);
   }
 }
 

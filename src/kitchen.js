@@ -1,20 +1,20 @@
 export default class Kitchen {
   // Class to represent the food objects used as bullets in the game
   constructor(gameWidth, gameHeight) {
-    this.image = document.getElementById("truck_img");
+    this.image = document.getElementById("foodstand");
     this.food_img1 = document.getElementById("nigiri_img");
     this.game_height = gameHeight;
 
-    this.truck_width = 500;
-    this.truck_height = 300;
+    this.truck_width = 350;
+    this.truck_height = 250;
 
-    this.x_pos = 1;
-    this.y_pos = gameHeight - this.truck_height;
+    this.x_pos = 100;
+    this.y_pos = 158;
 
     this.max_food = 10;
     this.cooked_food = [];
 
-    this.size = 500;
+    this.size = 400;
     this.cooked_food_size = 50;
 
     this.number_pos_x = 40;
@@ -42,11 +42,11 @@ export default class Kitchen {
       this.truck_width,
       this.truck_height
     );
-    ctx.fillText(
-      "KITCHEN - ORDERS READY:" + this.cooked_food.length,
-      this.number_pos_x,
-      this.number_pos_y
-    );
+    ctx.textAlign = "left";
+    ctx.font = "25px Tahoma";
+    ctx.fillStyle = "black";
+
+    ctx.fillText(this.cooked_food.length, this.number_pos_x, this.number_pos_y);
 
     this.cooked_food.forEach((food, index) => {
       food.draw(ctx);
