@@ -33,7 +33,9 @@ export const GAMESTATE = {
   GAMEOVER: 6,
   TAXHOUSE: 7,
   INHOME: 8,
-  INCITY1: 9
+  INCITY1: 9,
+  INHOOD_NIGHT: 10,
+  INHOOD_DAY: 11
 };
 
 export default class GameManager {
@@ -48,6 +50,10 @@ export default class GameManager {
     this.background = document.getElementById("background");
     this.night_bg = document.getElementById("night_bg");
     this.nighttown1 = document.getElementById("nighttown1");
+    this.nighttown2 = document.getElementById("nighttown2");
+    this.car = document.getElementById("car");
+    this.hood_bg = document.getElementById("hood_bg");
+    this.hood_bg_day = document.getElementById("hood_bg_day");
 
     this.bullets = [];
     this.coins = [];
@@ -102,15 +108,43 @@ export default class GameManager {
 
       case GAMESTATE.TAXHOUSE:
       case GAMESTATE.INHOME:
+        this.clam.update(deltaTime);
+        break;
+
       case GAMESTATE.INCITY1:
         this.clam.update(deltaTime);
+        if (this.clam.x_pos + this.clam.width >= this.GAME_WIDTH) {
+          this.goToGamestate(GAMESTATE.INCITY2);
+        }
+        break;
+
+      case GAMESTATE.INCITY2:
+        this.clam.update(deltaTime);
+        if (this.clam.x_pos <= 0) {
+          this.goToGamestate(GAMESTATE.INCITY1);
+        }
         break;
 
       case GAMESTATE.NIGHT:
         this.clam.update(deltaTime);
-        if (this.clam.x_pos + this.clam.width >= this.GAME_WIDTH) {
-          this.goToGamestate(GAMESTATE.INCITY1);
+        if (this.clam.x_pos <= 0) {
+          this.goToGamestate(GAMESTATE.INHOOD_NIGHT);
         }
+        break;
+
+      case GAMESTATE.INHOOD_NIGHT:
+        this.clam.update(deltaTime);
+        if (this.clam.x_pos + this.clam.width >= this.GAME_WIDTH) {
+          this.goToGamestate(GAMESTATE.NIGHT);
+        }
+        break;
+
+      case GAMESTATE.INHOOD_DAY:
+        this.clam.update(deltaTime);
+        if (this.clam.x_pos + this.clam.width >= this.GAME_WIDTH) {
+          this.goToGamestate(GAMESTATE.NEXTLEVEL);
+        }
+
         break;
 
       case GAMESTATE.ENDDAY:
@@ -217,6 +251,7 @@ export default class GameManager {
           this.GAME_WIDTH / 2 + 50,
           this.GAME_HEIGHT - 300
         );
+        ctx.drawImage(this.car, 600, 178);
 
         let objectstodraw = [this.kitchen, this.clam, this.gameStats];
         objectstodraw.forEach((object) => object.draw(ctx));
@@ -224,12 +259,44 @@ export default class GameManager {
         this.portals.forEach((object) => object.draw(ctx));
         break;
 
+      case GAMESTATE.INHOOD_NIGHT:
+        ctx.drawImage(this.hood_bg, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+        this.clam.draw(ctx);
+        this.portals.forEach((object) => object.draw(ctx));
+        this.gameStats.draw(ctx);
+        break;
+
+      case GAMESTATE.INHOOD_DAY:
+        ctx.drawImage(
+          this.hood_bg_day,
+          0,
+          0,
+          this.GAME_WIDTH,
+          this.GAME_HEIGHT
+        );
+        this.clam.draw(ctx);
+        this.gameStats.draw(ctx);
+        break;
+
       case GAMESTATE.INCITY1:
         ctx.drawImage(this.nighttown1, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
-        [...this.popups, this.clam, this.gameStats].forEach((object) =>
-          object.draw(ctx)
-        );
+        ctx.drawImage(this.car, 1, 500);
+        [
+          ...this.popups,
+          this.clam,
+          ...this.portals,
+          this.gameStats
+        ].forEach((object) => object.draw(ctx));
+        break;
 
+      case GAMESTATE.INCITY2:
+        ctx.drawImage(this.nighttown2, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+        [
+          ...this.popups,
+          this.clam,
+          ...this.portals,
+          this.gameStats
+        ].forEach((object) => object.draw(ctx));
         break;
 
       case GAMESTATE.TAXHOUSE:
@@ -351,10 +418,10 @@ export default class GameManager {
 
             break;
 
+          case GAMESTATE.INHOOD_NIGHT:
           case GAMESTATE.INHOME:
+          case GAMESTATE.INCITY1:
             this.checkAndTriggerPortals(this.portals);
-            this.clam.x_pos = 250;
-            this.clam.y_pos = this.GAME_HEIGHT - 100;
             break;
 
           case GAMESTATE.GAMEOVER:
@@ -420,6 +487,7 @@ export default class GameManager {
 
     if (gamestate === GAMESTATE.NEXTLEVEL) {
       this.eraseObjects();
+      this.clam.x_pos = 1;
       this.gameStats.incrementLevel();
       this.gamestate = GAMESTATE.NEXTLEVEL;
       // throw new day popup
@@ -448,6 +516,11 @@ export default class GameManager {
       if (this.gamestate === GAMESTATE.TAXHOUSE) {
         this.clam.x_pos = this.GAME_WIDTH / 2 + 10;
         this.clam.y_pos = this.GAME_HEIGHT - 150;
+      } else if (this.gamestate === GAMESTATE.INHOOD_NIGHT) {
+        this.clam.x_pos = 1;
+      } else if (this.gamestate === GAMESTATE.INCITY1) {
+        this.clam.x_pos = 638;
+        this.clam.y_pos = 248;
       }
       this.kitchen.cooking = false;
       this.eraseObjects();
@@ -459,17 +532,43 @@ export default class GameManager {
           GAMESTATE.TAXHOUSE
         )
       );
-      this.portals.push(
-        new Portal(250, this.GAME_HEIGHT - 100, GAMESTATE.INHOME)
-      );
+      this.portals.push(new Portal(620, 255, GAMESTATE.INCITY1));
     }
 
     if (gamestate === GAMESTATE.INCITY1) {
       if (this.gamestate === GAMESTATE.NIGHT) {
+        this.clam.x_pos = 5;
+        this.clam.y_pos = 550;
+      } else if (this.gamestate === GAMESTATE.INCITY2) {
+        this.clam.x_pos = this.GAME_WIDTH - this.clam.width;
+      }
+
+      this.eraseObjects();
+      this.gamestate = GAMESTATE.INCITY1;
+      this.portals.push(new Portal(1, 570, GAMESTATE.NIGHT));
+    }
+
+    if (gamestate === GAMESTATE.INCITY2) {
+      if (this.gamestate === GAMESTATE.INCITY1) {
         this.clam.x_pos = 1;
       }
       this.eraseObjects();
-      this.gamestate = GAMESTATE.INCITY1;
+      this.gamestate = GAMESTATE.INCITY2;
+      this.portals.push(new Portal(700, 590, GAMESTATE.NIGHT));
+    }
+
+    if (gamestate === GAMESTATE.INHOOD_NIGHT) {
+      if (this.gamestate === GAMESTATE.NIGHT) {
+        this.clam.x_pos = this.GAME_WIDTH - this.clam.width;
+      }
+      this.eraseObjects();
+      this.portals.push(new Portal(480, 440, GAMESTATE.INHOOD_DAY));
+      this.gamestate = GAMESTATE.INHOOD_NIGHT;
+    }
+
+    if (gamestate === GAMESTATE.INHOOD_DAY) {
+      this.eraseObjects();
+      this.gamestate = GAMESTATE.INHOOD_DAY;
     }
 
     if (gamestate === GAMESTATE.TAXHOUSE) {
@@ -588,7 +687,7 @@ export default class GameManager {
 
   generateCustomers() {
     // reload customers array (temporary code, will flesh out cust gen)
-    if (this.customers.length < 10) {
+    if (this.customers.length < 4) {
       this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
     }
   }

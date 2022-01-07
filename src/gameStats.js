@@ -37,15 +37,6 @@ export default class GameStats {
     this.sign_width = 600;
   }
 
-  gameOver() {
-    // perform reset of objects needed to reset game
-    this.day = 1;
-    this.dollars = 0;
-    this.days_tax = 2;
-    this.lives = 10;
-    this.resetLevel();
-  }
-
   resetLevel() {
     // perform the reset of objects needed to go to another level
     this.days_dollars = 0;
@@ -53,6 +44,15 @@ export default class GameStats {
     this.timerOn = false;
     this.business_day_timer = 20;
     this.daysTaxPaid = false;
+  }
+
+  gameOver() {
+    // perform reset of objects needed to reset game
+    this.day = 1;
+    this.dollars = 0;
+    this.days_tax = 2;
+    this.lives = 10;
+    this.resetLevel();
   }
 
   incrementLevel() {

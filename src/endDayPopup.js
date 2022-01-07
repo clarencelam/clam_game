@@ -23,6 +23,9 @@ export default class EndDayPopup {
   draw(ctx) {
     // draw box to put info in
     ctx.fillStyle = this.box_background_color;
+    ctx.textAlign = "left";
+    ctx.font = "25px Tahoma";
+
     ctx.fillRect(
       this.screen_centered_x,
       this.screen_centered_y,

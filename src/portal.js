@@ -7,8 +7,8 @@ export default class Portal {
     this.gogamestate = gotogamestate;
     this.x_pos = x;
     this.y_pos = y;
-    this.height = 180;
-    this.width = 80;
+    this.height = 150;
+    this.width = 50;
     this.marked_for_deletion = false;
   }
 

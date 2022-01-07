@@ -5,13 +5,13 @@ export default class Kitchen {
     this.food_img1 = document.getElementById("nigiri_img");
     this.game_height = gameHeight;
 
-    this.truck_width = 350;
-    this.truck_height = 250;
+    this.truck_width = 375;
+    this.truck_height = 200;
 
     this.x_pos = 100;
-    this.y_pos = 158;
+    this.y_pos = 112;
 
-    this.max_food = 10;
+    this.max_food = 5;
     this.cooked_food = [];
 
     this.size = 400;
@@ -42,14 +42,13 @@ export default class Kitchen {
       this.truck_width,
       this.truck_height
     );
-    ctx.textAlign = "left";
-    ctx.font = "25px Tahoma";
-    ctx.fillStyle = "black";
-
-    ctx.fillText(this.cooked_food.length, this.number_pos_x, this.number_pos_y);
-
     this.cooked_food.forEach((food, index) => {
       food.draw(ctx);
     });
   }
 }
+/*
+    ctx.textAlign = "left";
+    ctx.font = "25px Tahoma";
+    ctx.fillStyle = "black";
+*/
