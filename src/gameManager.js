@@ -37,7 +37,8 @@ export const GAMESTATE = {
   INHOOD_NIGHT: 10,
   INHOOD_DAY: 11,
   UPGRADEROOM: 12,
-  RESTO: 13
+  RESTO: 13,
+  INCITY2: 14
 };
 
 export default class GameManager {
@@ -554,6 +555,12 @@ export default class GameManager {
         this.clam.y_pos = 550;
       } else if (this.gamestate === GAMESTATE.INCITY2) {
         this.clam.x_pos = this.GAME_WIDTH - this.clam.width;
+      } else if (this.gamestate === GAMESTATE.UPGRADEROOM) {
+        this.clam.x_pos = 445;
+        this.clam.y_pos = 550;
+      } else if (this.gamestate === GAMESTATE.RESTO) {
+        this.clam.x_pos = 800;
+        this.clam.y_pos = 550;
       }
 
       this.eraseObjects();
@@ -615,14 +622,18 @@ export default class GameManager {
 
     if (gamestate === GAMESTATE.UPGRADEROOM) {
       this.eraseObjects();
-      this.portals.push(new Portal(10, 700, GAMESTATE.INCITY1));
+      this.portals.push(new Portal(500, 742, GAMESTATE.INCITY1));
       this.gamestate = GAMESTATE.UPGRADEROOM;
+      this.clam.x_pos = 540;
+      this.clam.y_pos = 730;
     }
 
     if (gamestate === GAMESTATE.RESTO) {
       this.eraseObjects();
-      this.portals.push(new Portal(10, 700, GAMESTATE.INCITY1));
+      this.portals.push(new Portal(1000, 700, GAMESTATE.INCITY1));
       this.gamestate = GAMESTATE.RESTO;
+      this.clam.x_pos = 1040;
+      this.clam.y_pos = 670;
     }
   }
 
