@@ -559,8 +559,8 @@ export default class GameManager {
       this.eraseObjects();
       this.gamestate = GAMESTATE.INCITY1;
       this.portals.push(new Portal(1, 570, GAMESTATE.NIGHT));
-      this.portals.push(new Portal(500, 570, GAMESTATE.UPGRADEROOM));
-      this.portals.push(new Portal(800, 570, GAMESTATE.RESTO));
+      this.portals.push(new Portal(400, 570, GAMESTATE.UPGRADEROOM));
+      this.portals.push(new Portal(780, 570, GAMESTATE.RESTO));
     }
 
     if (gamestate === GAMESTATE.INCITY2) {
