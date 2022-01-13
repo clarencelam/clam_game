@@ -289,6 +289,7 @@ export default class GameManager {
 
       case GAMESTATE.INCITY2:
         ctx.drawImage(this.nighttown2, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+        ctx.drawImage(this.car, 1000, 520);
         [
           ...this.popups,
           this.clam,
@@ -539,7 +540,10 @@ export default class GameManager {
         this.clam.y_pos = this.GAME_HEIGHT - 150;
       } else if (this.gamestate === GAMESTATE.INHOOD_NIGHT) {
         this.clam.x_pos = 1;
-      } else if (this.gamestate === GAMESTATE.INCITY1) {
+      } else if (
+        this.gamestate === GAMESTATE.INCITY1 ||
+        this.gamestate === GAMESTATE.INCITY2
+      ) {
         this.clam.x_pos = 638;
         this.clam.y_pos = 248;
       }
@@ -580,6 +584,7 @@ export default class GameManager {
       this.eraseObjects();
       this.gamestate = GAMESTATE.INCITY2;
       this.portals.push(new Portal(680, 590, GAMESTATE.TAXHOUSE));
+      this.portals.push(new Portal(1000, 590, GAMESTATE.NIGHT));
     }
 
     if (gamestate === GAMESTATE.INHOOD_NIGHT) {
@@ -630,10 +635,10 @@ export default class GameManager {
 
     if (gamestate === GAMESTATE.RESTO) {
       this.eraseObjects();
-      this.portals.push(new Portal(1000, 700, GAMESTATE.INCITY1));
+      this.portals.push(new Portal(1000, 657, GAMESTATE.INCITY1));
       this.gamestate = GAMESTATE.RESTO;
       this.clam.x_pos = 1040;
-      this.clam.y_pos = 670;
+      this.clam.y_pos = 641;
     }
   }
 
