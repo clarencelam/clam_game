@@ -354,6 +354,13 @@ export default class GameManager {
         this.clam.draw(ctx);
         this.npcs.forEach((object) => object.draw(ctx));
         this.portals.forEach((object) => object.draw(ctx));
+        this.npcs.forEach((upgradeobj) => {
+          if (detectRectCollision(upgradeobj, this.clam)) {
+            console.log("clam collide upgradobj");
+            upgradeobj.onHover(ctx);
+          }
+        });
+        this.gameStats.draw(ctx);
         break;
 
       case GAMESTATE.RESTO:
@@ -365,6 +372,7 @@ export default class GameManager {
           this.GAME_HEIGHT
         );
         this.clam.draw(ctx);
+        this.gameStats.draw(ctx);
         this.portals.forEach((object) => object.draw(ctx));
         break;
 
@@ -450,7 +458,7 @@ export default class GameManager {
 
           case GAMESTATE.UPGRADEROOM:
             this.checkAndTriggerPortals(this.portals);
-
+            // Check interaction with upgrade stations
             this.npcs.forEach((upgradeobj) => {
               if (detectRectCollision(upgradeobj, this.clam)) {
                 console.log(upgradeobj);

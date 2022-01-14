@@ -10,10 +10,40 @@ export default class UpgradeObject {
     this.y_pos = y;
     this.height = 200;
     this.width = 100;
+    this.box_height = 200;
+    this.box_width = 800;
+    this.box_x = 100;
+    this.box_y = 100;
+
     this.type = type;
     this.gamestats = gamestats;
     this.kitchen = kitchen;
     this.stat_level = 1;
+    this.cost = 2;
+    this.cost_increment = 2;
+  }
+
+  onHover(ctx) {
+    switch (this.type) {
+      case 1:
+        this.hovermsg1 = "RESEARCH LOGISTICS - Increases cooking speed";
+        this.hovermsg2 = "CURENT LEVEL: " + this.stat_level;
+        this.hovermsg3 = "NEXT LEVEL COST: " + this.cost;
+        break;
+
+      default:
+        break;
+    }
+    ctx.textAlign = "left";
+    ctx.fillStyle = "white";
+    ctx.fillRect(this.box_x, this.box_y, this.box_width, this.box_height);
+    ctx.stroke();
+    ctx.fillStyle = "black";
+
+    // write tax message
+    ctx.fillText(this.hovermsg1, this.box_x + 10, this.box_y + 30);
+    ctx.fillText(this.hovermsg2, this.box_x + 10, this.box_y + 60);
+    ctx.fillText(this.hovermsg3, this.box_x + 10, this.box_y + 90);
   }
 
   upgrade() {
@@ -24,9 +54,12 @@ export default class UpgradeObject {
 
       case 1:
         // make food cook faster
-        this.kitchen.cook_time = this.kitchen.cook_time - 100;
-        this.gamestats.dollars = this.gamestats.dollars - 1;
-        this.stat_level = this.stat_level + 1;
+        if (this.gamestats.dollars >= this.cost) {
+          this.kitchen.cook_time = this.kitchen.cook_time - 100;
+          this.gamestats.dollars = this.gamestats.dollars - this.cost;
+          this.cost = this.cost + this.cost_increment;
+          this.stat_level = this.stat_level + 1;
+        }
         break;
 
       default:
@@ -35,16 +68,6 @@ export default class UpgradeObject {
   }
 
   draw(ctx) {
-    switch (this.type) {
-      case 1:
-        this.message1 = "RESEARCH LOGISTICS";
-        this.message2 = "CURENT LEVEL: " + this.stat_level;
-        break;
-
-      default:
-        break;
-    }
-
     // draw box to put info in
     /**
      * ctx.fillStyle = this.box_background_color;
@@ -61,10 +84,5 @@ export default class UpgradeObject {
     // draw outline for box
     ctx.fillStyle = this.box_outline_color;
     ctx.strokeRect(this.x_pos, this.y_pos, this.width, this.height);
-    ctx.font = this.default_font;
-
-    // write tax message
-    ctx.fillText(this.message1, this.x_pos + 10, this.y_pos + 30);
-    ctx.fillText(this.message2, this.x_pos + 10, this.y_pos + 60);
   }
 }
