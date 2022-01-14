@@ -21,6 +21,8 @@ import EndDayPopup from "/src/endDayPopup";
 import Portal from "/src/portal";
 import BeginDayPopup from "./beginDayPopup";
 import TaxMan from "./taxMan";
+import UpgradeObject from "./upgradeObject";
+
 import { CLAMSTATE } from "./clam";
 
 export const GAMESTATE = {
@@ -350,6 +352,7 @@ export default class GameManager {
           this.GAME_HEIGHT
         );
         this.clam.draw(ctx);
+        this.npcs.forEach((object) => object.draw(ctx));
         this.portals.forEach((object) => object.draw(ctx));
         break;
 
@@ -441,9 +444,20 @@ export default class GameManager {
           case GAMESTATE.INHOME:
           case GAMESTATE.INCITY1:
           case GAMESTATE.INCITY2:
-          case GAMESTATE.UPGRADEROOM:
           case GAMESTATE.RESTO:
             this.checkAndTriggerPortals(this.portals);
+            break;
+
+          case GAMESTATE.UPGRADEROOM:
+            this.checkAndTriggerPortals(this.portals);
+
+            this.npcs.forEach((upgradeobj) => {
+              if (detectRectCollision(upgradeobj, this.clam)) {
+                console.log(upgradeobj);
+                upgradeobj.upgrade();
+              }
+            });
+
             break;
 
           case GAMESTATE.GAMEOVER:
@@ -603,15 +617,11 @@ export default class GameManager {
 
     if (gamestate === GAMESTATE.TAXHOUSE) {
       this.eraseObjects();
-      if (this.gamestate === gamestate.INCITY2) {
-        this.clam.x_pos = 65;
-        this.clam.y_pos = this.GAME_HEIGHT - 120;
-      }
+      this.clam.x_pos = 60;
+      this.clam.y_pos = 730;
       this.gamestate = GAMESTATE.TAXHOUSE;
-      this.portals.push(
-        new Portal(50, this.GAME_HEIGHT - 100, GAMESTATE.INCITY2)
-      );
-      this.npcs.push(new TaxMan(800, 500, this.gameStats.days_tax));
+      this.portals.push(new Portal(50, 730, GAMESTATE.INCITY2));
+      this.npcs.push(new TaxMan(800, 665, this.gameStats.days_tax));
     }
 
     if (gamestate === GAMESTATE.INHOME) {
@@ -628,6 +638,9 @@ export default class GameManager {
     if (gamestate === GAMESTATE.UPGRADEROOM) {
       this.eraseObjects();
       this.portals.push(new Portal(500, 742, GAMESTATE.INCITY1));
+      this.npcs.push(
+        new UpgradeObject(400, 500, 1, this.gameStats, this.kitchen)
+      );
       this.gamestate = GAMESTATE.UPGRADEROOM;
       this.clam.x_pos = 540;
       this.clam.y_pos = 730;
