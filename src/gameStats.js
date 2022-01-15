@@ -8,7 +8,7 @@ export default class GameStats {
     this.day = 1;
 
     this.timerOn = false;
-    this.business_day_timer = 5;
+    this.business_day_timer = 20;
 
     this.advance_interval = 1000; //one second = two minute passes in timer
 
@@ -39,9 +39,9 @@ export default class GameStats {
     this.custs = [];
 
     this.custgen_on = false;
-    this.custgen_time = 500;
-    this.activecust_length = 0;
-    this.activecust_maxlength = 10;
+    this.custgen_time = 3000;
+    this.activecust_length = this.custs.length;
+    this.activecust_maxlength = 15;
   }
 
   resetLevel() {

@@ -498,35 +498,6 @@ export default class GameManager {
       initializeTimer(this.gameStats);
 
       initializeCustomers(this.gameStats);
-      /*
-      this.gameStats.custgen_on = true;
-      generateCusts(this.gameStats, this.customers);
-      var custgen = setInterval(
-        generateCusts,
-        100,
-        this.gameStats,
-        this.customers
-      );
-      function generateCusts(gamestats, custs) {
-        if (gamestats.custgen_on === false) {
-          clearInterval(custgen);
-        }
-        custs.push(new Customer(1200, 800));
-
-        if (gamestats.activecust_length <= gamestats.activecust_maxlength) {
-          let rndInteger = randomIntFromInterval(1, 3);
-          console.log(rndInteger);
-          if (rndInteger === 1) {
-            custs.push(new Customer(1200, 800));
-          } else if (rndInteger === 2) {
-            custs.push(new Customer(1200, 800));
-            custs.push(new Customer(1200, 800));
-          } else {
-            // no spawn
-          }
-        }
-      }
-      */
     }
 
     if (gamestate === GAMESTATE.TUTORIAL) {
@@ -677,6 +648,9 @@ export default class GameManager {
     if (gamestate === GAMESTATE.UPGRADEROOM) {
       this.eraseObjects();
       this.portals.push(new Portal(500, 742, GAMESTATE.INCITY1));
+      this.npcs.push(
+        new UpgradeObject(800, 500, 0, this.gameStats, this.kitchen)
+      );
       this.npcs.push(
         new UpgradeObject(400, 500, 1, this.gameStats, this.kitchen)
       );
@@ -1006,15 +980,13 @@ function generateCustomers(gamestats) {
 */
 function initializeCustomers(gamestats) {
   if (gamestats.custgen_on === false) {
-    var init_custs = setInterval(genCusts, 500);
+    var init_custs = setInterval(genCusts, gamestats.custgen_time);
     gamestats.custgen_on = true;
   }
   function genCusts() {
     if (gamestats.custgen_on === false) {
       clearInterval(init_custs);
     }
-
-    gamestats.custs.push(new Customer(1200, 800));
 
     if (gamestats.activecust_length <= gamestats.activecust_maxlength) {
       let rndInteger = randomIntFromInterval(1, 3);
