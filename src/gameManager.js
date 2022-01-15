@@ -48,8 +48,14 @@ export default class GameManager {
     this.ctx = ctx;
     this.GAME_WIDTH = gameWidth;
     this.GAME_HEIGHT = gameHeight;
-    this.gameStats = new GameStats(this.GAME_WIDTH, this.GAME_HEIGHT);
+    this.start();
+    new InputHandler(ctx, this.clam);
+    this.spacebarHandler();
+  }
 
+  start() {
+    // start new game
+    this.gameStats = new GameStats(this.GAME_WIDTH, this.GAME_HEIGHT);
     this.clam = new Clam(this.GAME_WIDTH, this.GAME_HEIGHT);
 
     this.background = document.getElementById("background");
@@ -67,17 +73,17 @@ export default class GameManager {
     this.customers = [];
     this.thugs = [];
     this.portals = [];
+    this.upgrades = [];
     this.kitchen = new Kitchen(this.GAME_WIDTH, this.GAME_HEIGHT);
-    //this.click = { x: null, y: null };
 
     this.gamestate = GAMESTATE.MENU; // For now, just start with game running
 
-    new InputHandler(ctx, this.clam);
-    this.spacebarHandler();
-  }
-
-  start() {
-    // Start new level
+    this.upgrades.push(
+      new UpgradeObject(800, 500, 0, this.gameStats, this.kitchen)
+    );
+    this.upgrades.push(
+      new UpgradeObject(400, 500, 1, this.gameStats, this.kitchen)
+    );
   }
 
   update(deltaTime) {
@@ -354,9 +360,9 @@ export default class GameManager {
           this.GAME_HEIGHT
         );
         this.clam.draw(ctx);
-        this.npcs.forEach((object) => object.draw(ctx));
+        this.upgrades.forEach((object) => object.draw(ctx));
         this.portals.forEach((object) => object.draw(ctx));
-        this.npcs.forEach((upgradeobj) => {
+        this.upgrades.forEach((upgradeobj) => {
           if (detectRectCollision(upgradeobj, this.clam)) {
             console.log("clam collide upgradobj");
             upgradeobj.onHover(ctx);
@@ -461,7 +467,7 @@ export default class GameManager {
           case GAMESTATE.UPGRADEROOM:
             this.checkAndTriggerPortals(this.portals);
             // Check interaction with upgrade stations
-            this.npcs.forEach((upgradeobj) => {
+            this.upgrades.forEach((upgradeobj) => {
               if (detectRectCollision(upgradeobj, this.clam)) {
                 console.log(upgradeobj);
                 upgradeobj.upgrade();
@@ -648,12 +654,6 @@ export default class GameManager {
     if (gamestate === GAMESTATE.UPGRADEROOM) {
       this.eraseObjects();
       this.portals.push(new Portal(500, 742, GAMESTATE.INCITY1));
-      this.npcs.push(
-        new UpgradeObject(800, 500, 0, this.gameStats, this.kitchen)
-      );
-      this.npcs.push(
-        new UpgradeObject(400, 500, 1, this.gameStats, this.kitchen)
-      );
       this.gamestate = GAMESTATE.UPGRADEROOM;
       this.clam.x_pos = 540;
       this.clam.y_pos = 730;
