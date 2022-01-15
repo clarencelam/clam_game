@@ -48,15 +48,6 @@ export default class GameManager {
     this.ctx = ctx;
     this.GAME_WIDTH = gameWidth;
     this.GAME_HEIGHT = gameHeight;
-    this.start();
-    new InputHandler(ctx, this.clam);
-    this.spacebarHandler();
-  }
-
-  start() {
-    // start new game
-    this.gameStats = new GameStats(this.GAME_WIDTH, this.GAME_HEIGHT);
-    this.clam = new Clam(this.GAME_WIDTH, this.GAME_HEIGHT);
 
     this.background = document.getElementById("background");
     this.night_bg = document.getElementById("night_bg");
@@ -65,6 +56,17 @@ export default class GameManager {
     this.car = document.getElementById("car");
     this.hood_bg = document.getElementById("hood_bg");
     this.hood_bg_day = document.getElementById("hood_bg_day");
+
+    this.clam = new Clam(this.GAME_WIDTH, this.GAME_HEIGHT);
+
+    new InputHandler(ctx, this.clam);
+    this.gamestate = GAMESTATE.MENU;
+    this.spacebarHandler();
+  }
+
+  start() {
+    // start new game
+    this.gameStats = new GameStats(this.GAME_WIDTH, this.GAME_HEIGHT);
 
     this.bullets = [];
     this.coins = [];
@@ -76,7 +78,7 @@ export default class GameManager {
     this.upgrades = [];
     this.kitchen = new Kitchen(this.GAME_WIDTH, this.GAME_HEIGHT);
 
-    this.gamestate = GAMESTATE.MENU; // For now, just start with game running
+    // For now, just start with game running
 
     this.upgrades.push(
       new UpgradeObject(800, 500, 0, this.gameStats, this.kitchen)
@@ -157,7 +159,7 @@ export default class GameManager {
       case GAMESTATE.INHOOD_DAY:
         this.clam.update(deltaTime);
         if (this.clam.x_pos + this.clam.width >= this.GAME_WIDTH) {
-          this.goToGamestate(GAMESTATE.NEXTLEVEL);
+          this.goToGamestate(GAMESTATE.BUSINESSDAY);
         }
 
         break;
@@ -179,22 +181,23 @@ export default class GameManager {
         this.updateBullets(this.bullets, deltaTime);
 
         this.clam.update(deltaTime);
+
         break;
 
       case GAMESTATE.TUTORIAL:
       case GAMESTATE.NEXTLEVEL:
         // Show popup, update objects needed in tutorial
-        this.kitchen.update(deltaTime);
+        //this.kitchen.update(deltaTime);
         this.checkClamGettingFood();
         this.bullets = this.bullets.filter(
           (bullet) => !bullet.marked_for_deletion
         );
-        this.updateBullets(this.bullets, deltaTime);
+        //this.updateBullets(this.bullets, deltaTime);
         this.clam.update(deltaTime);
 
-        if (this.clam.bullets_held.length > 0) {
+        if (this.clam.x_pos + this.clam.width >= this.GAME_WIDTH) {
           this.goToGamestate(GAMESTATE.BUSINESSDAY);
-          console.log("clam picked up bullet, go to business day");
+          console.log("clam went to right, go to business day");
         }
         break;
 
@@ -385,10 +388,22 @@ export default class GameManager {
         break;
 
       case GAMESTATE.TUTORIAL:
-      case GAMESTATE.NEXTLEVEL:
         // Draw objects needed for tutorial
-        ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
-        this.kitchen.draw(ctx);
+        ctx.drawImage(this.hood_bg, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+        [...this.bullets, ...this.popups].forEach((object) => object.draw(ctx));
+        this.clam.draw(ctx);
+        this.gameStats.draw(ctx);
+
+        break;
+
+      case GAMESTATE.NEXTLEVEL:
+        ctx.drawImage(
+          this.hood_bg_day,
+          0,
+          0,
+          this.GAME_WIDTH,
+          this.GAME_HEIGHT
+        );
         [...this.bullets, ...this.popups].forEach((object) => object.draw(ctx));
         this.clam.draw(ctx);
         this.gameStats.draw(ctx);
@@ -447,7 +462,9 @@ export default class GameManager {
             break;
 
           case GAMESTATE.ENDDAY:
-            this.goToGamestate(GAMESTATE.NIGHT);
+            if (this.kitchen.cooked_food.length === 0) {
+              this.goToGamestate(GAMESTATE.NIGHT);
+            }
             break;
 
           case GAMESTATE.TAXHOUSE:
@@ -456,12 +473,22 @@ export default class GameManager {
             break;
 
           case GAMESTATE.NIGHT:
-          case GAMESTATE.INHOOD_NIGHT:
           case GAMESTATE.INHOME:
           case GAMESTATE.INCITY1:
           case GAMESTATE.INCITY2:
           case GAMESTATE.RESTO:
             this.checkAndTriggerPortals(this.portals);
+            break;
+
+          case GAMESTATE.INHOOD_NIGHT:
+          case GAMESTATE.NEXTLEVEL:
+            this.popups = [];
+            this.checkAndTriggerPortals(this.portals);
+            break;
+
+          case GAMESTATE.TUTORIAL:
+            this.popups = [];
+            this.goToGamestate(GAMESTATE.INHOOD_DAY);
             break;
 
           case GAMESTATE.UPGRADEROOM:
@@ -495,6 +522,14 @@ export default class GameManager {
 
     // ----- ACTIONS TO TRANSITION TO GAMESTATE.BUSINESSDAY -----
     if (gamestate === GAMESTATE.BUSINESSDAY) {
+      if (
+        this.gamestate === GAMESTATE.TUTORIAL ||
+        this.gamestate === GAMESTATE.NEXTLEVEL ||
+        this.gamestate === GAMESTATE.INHOOD_DAY
+      ) {
+        this.clam.x_pos = 1;
+      }
+      this.eraseObjects();
       this.popups = [];
       this.bullets = [];
       this.customers = [];
@@ -508,6 +543,7 @@ export default class GameManager {
 
     if (gamestate === GAMESTATE.TUTORIAL) {
       this.gamestate = GAMESTATE.TUTORIAL;
+      this.start();
       // push 1 food for tutorial purposes
       this.cookOneFood();
       this.popups.push(
@@ -539,7 +575,6 @@ export default class GameManager {
 
     if (gamestate === GAMESTATE.NEXTLEVEL) {
       this.eraseObjects();
-      this.clam.x_pos = 1;
       this.gameStats.incrementLevel();
       this.gamestate = GAMESTATE.NEXTLEVEL;
       // throw new day popup
@@ -622,7 +657,7 @@ export default class GameManager {
         this.clam.x_pos = this.GAME_WIDTH - this.clam.width;
       }
       this.eraseObjects();
-      this.portals.push(new Portal(480, 440, GAMESTATE.INHOOD_DAY));
+      this.portals.push(new Portal(480, 440, GAMESTATE.NEXTLEVEL));
       this.gamestate = GAMESTATE.INHOOD_NIGHT;
     }
 

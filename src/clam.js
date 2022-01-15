@@ -30,11 +30,10 @@ export default class Clam {
 
     this.facing = 1; // 1 = facing right, -1 = facing left
 
-    this.shooting = false;
-
     this.push_velocity = 30;
     this.pushed_right = false;
     this.pushed_left = false;
+    this.shooting = false;
   }
 
   resetPushVelocity() {
@@ -105,6 +104,7 @@ export default class Clam {
     this.bullets_held.push(new FoodSprite(this.x_pos, this.y_pos));
   }
 
+  /*
   drawShootingTilt(ctx, deg) {
     ctx.save();
     var rad = (deg * Math.PI) / 180;
@@ -120,6 +120,7 @@ export default class Clam {
     );
     ctx.restore();
   }
+  */
 
   drawHorizontally(ctx, x_pos) {
     ctx.translate(x_pos + this.size, this.y_pos);
@@ -131,16 +132,10 @@ export default class Clam {
   draw(ctx) {
     // Draw the clam to the screen. If it is shooting, draw its shooting animation
     switch (true) {
-      case this.facing === 1 && this.shooting === true: // facing right, shooting
-        this.drawShootingTilt(ctx, 30);
-        break;
-      case this.facing === 1 && this.shooting === false: // facing right, not shooting
+      case this.facing === 1: // facing right, not shooting
         ctx.drawImage(this.img, this.x_pos, this.y_pos, this.size, this.size);
         break;
-      case this.facing === -1 && this.shooting === true: // facing left, shooting
-        this.drawHorizontally(ctx, this.x_pos);
-        break;
-      case this.facing === -1 && this.shooting === false: // facing left, not shooting
+      case this.facing === -1: // facing left, shooting
         this.drawHorizontally(ctx, this.x_pos);
         break;
       default:

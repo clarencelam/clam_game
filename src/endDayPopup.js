@@ -60,12 +60,7 @@ export default class EndDayPopup {
       this.screen_centered_y + 90
     );
     ctx.fillText(
-      "Today's tax is " + this.tax,
-      this.screen_centered_x + 10,
-      this.screen_centered_y + 120
-    );
-    ctx.fillText(
-      "Press SPACEBAR to continue.",
+      "Clean up the Kitchen's Food, & then press SPACEBAR to end the business day.",
       this.screen_centered_x + 10,
       this.screen_centered_y + 150
     );

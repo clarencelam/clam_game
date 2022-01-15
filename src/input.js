@@ -34,7 +34,6 @@ export default class InputHandler {
           clam.moving_down = false;
           break;
         case 32:
-          clam.shooting = false;
           break;
         default:
       }
