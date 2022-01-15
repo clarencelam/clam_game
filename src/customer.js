@@ -30,8 +30,8 @@ export default class Customer {
 
     this.markfordelete = false;
 
-    this.min = 0;
-    this.max = gameHeight * 0.75;
+    this.min = 300;
+    this.max = gameHeight;
 
     this.rndBinary = randomIntFromInterval(1, 2);
     const rndInt = randomIntFromInterval(this.min, this.max);

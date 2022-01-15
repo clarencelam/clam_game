@@ -35,6 +35,13 @@ export default class GameStats {
     this.coin_size = 25;
     this.sign_height = 60;
     this.sign_width = 600;
+
+    this.custs = [];
+
+    this.custgen_on = false;
+    this.custgen_time = 500;
+    this.activecust_length = 0;
+    this.activecust_maxlength = 10;
   }
 
   resetLevel() {

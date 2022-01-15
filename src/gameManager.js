@@ -70,7 +70,7 @@ export default class GameManager {
     this.kitchen = new Kitchen(this.GAME_WIDTH, this.GAME_HEIGHT);
     //this.click = { x: null, y: null };
 
-    this.gamestate = GAMESTATE.ENDDAY; // For now, just start with game running
+    this.gamestate = GAMESTATE.MENU; // For now, just start with game running
 
     new InputHandler(ctx, this.clam);
     this.spacebarHandler();
@@ -91,11 +91,13 @@ export default class GameManager {
         this.thugs = this.thugs.filter((thug) => !thug.markfordelete);
 
         this.kitchen.update(deltaTime);
-        this.generateCustomers();
+        // this.generateCustomers();
         this.customers = this.customers.filter(
           (customer) => !customer.markfordelete
         );
+        this.customers = this.gameStats.custs; // makes customer string inherit from gamestats
         this.updateCustomers(deltaTime);
+
         this.checkClamGettingFood();
         this.bullets = this.bullets.filter(
           (bullet) => !bullet.marked_for_deletion
@@ -486,10 +488,7 @@ export default class GameManager {
     console.log("GAMESTATE: " + this.gamestate);
 
     // ----- ACTIONS TO TRANSITION TO GAMESTATE.BUSINESSDAY -----
-    if (
-      gamestate === GAMESTATE.BUSINESSDAY &&
-      (this.gamestate === GAMESTATE.TUTORIAL || GAMESTATE.NEXTLEVEL)
-    ) {
+    if (gamestate === GAMESTATE.BUSINESSDAY) {
       this.popups = [];
       this.bullets = [];
       this.customers = [];
@@ -497,6 +496,37 @@ export default class GameManager {
       this.gamestate = GAMESTATE.BUSINESSDAY;
       initializeCooking(this.kitchen);
       initializeTimer(this.gameStats);
+
+      initializeCustomers(this.gameStats);
+      /*
+      this.gameStats.custgen_on = true;
+      generateCusts(this.gameStats, this.customers);
+      var custgen = setInterval(
+        generateCusts,
+        100,
+        this.gameStats,
+        this.customers
+      );
+      function generateCusts(gamestats, custs) {
+        if (gamestats.custgen_on === false) {
+          clearInterval(custgen);
+        }
+        custs.push(new Customer(1200, 800));
+
+        if (gamestats.activecust_length <= gamestats.activecust_maxlength) {
+          let rndInteger = randomIntFromInterval(1, 3);
+          console.log(rndInteger);
+          if (rndInteger === 1) {
+            custs.push(new Customer(1200, 800));
+          } else if (rndInteger === 2) {
+            custs.push(new Customer(1200, 800));
+            custs.push(new Customer(1200, 800));
+          } else {
+            // no spawn
+          }
+        }
+      }
+      */
     }
 
     if (gamestate === GAMESTATE.TUTORIAL) {
@@ -516,6 +546,7 @@ export default class GameManager {
     if (gamestate === GAMESTATE.ENDDAY) {
       this.kitchen.cooking = false;
       this.gameStats.timerOn = false;
+      this.gameStats.custgen_on = false;
       this.gamestate = GAMESTATE.ENDDAY;
       this.gameStats.resetLevel();
       this.popups.push(
@@ -754,12 +785,14 @@ export default class GameManager {
     });
   }
 
+  /*
   generateCustomers() {
     // reload customers array (temporary code, will flesh out cust gen)
     if (this.customers.length < 4) {
       this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
     }
   }
+  */
 
   generateThugs() {
     if (this.thugs.length < 1) {
@@ -938,6 +971,61 @@ function initializeThugRandomMovement(thug) {
       } else if (randomInt === 6) {
         thug.y_direction = -1;
         thug.state = THIEFSTATE.WALKING;
+      }
+    }
+  }
+}
+
+/*
+function generateCustomers(gamestats) {
+  if (gamestats.custgen_on === false) {
+    var custgen = setInterval(generateCusts, 1000, gamestats);
+    gamestats.custgen_on = true;
+  }
+
+  function generateCusts(stats) {
+    if (stats.custgen_on === false) {
+      clearInterval(custgen);
+    }
+    this.customers.push(new Customer(1200, 800));
+
+    if (stats.activecust_length <= stats.activecust_maxlength) {
+      let rndInteger = randomIntFromInterval(1, 3);
+      console.log(rndInteger);
+      if (rndInteger === 1) {
+        this.customers.push(new Customer(1200, 800));
+      } else if (rndInteger === 2) {
+        this.customers.push(new Customer(1200, 800));
+        this.customers.push(new Customer(1200, 800));
+      } else {
+        // no spawn
+      }
+    }
+  }
+}
+*/
+function initializeCustomers(gamestats) {
+  if (gamestats.custgen_on === false) {
+    var init_custs = setInterval(genCusts, 500);
+    gamestats.custgen_on = true;
+  }
+  function genCusts() {
+    if (gamestats.custgen_on === false) {
+      clearInterval(init_custs);
+    }
+
+    gamestats.custs.push(new Customer(1200, 800));
+
+    if (gamestats.activecust_length <= gamestats.activecust_maxlength) {
+      let rndInteger = randomIntFromInterval(1, 3);
+      console.log(rndInteger);
+      if (rndInteger === 1) {
+        gamestats.custs.push(new Customer(1200, 800));
+      } else if (rndInteger === 2) {
+        gamestats.custs.push(new Customer(1200, 800));
+        gamestats.custs.push(new Customer(1200, 800));
+      } else {
+        // no spawn
       }
     }
   }
