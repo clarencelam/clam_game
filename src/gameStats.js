@@ -52,6 +52,9 @@ export default class GameStats {
 
   resetLevel() {
     // perform the reset of objects needed to go to another level
+    this.custs = [];
+    this.thugs = [];
+
     this.days_dollars = 0;
     this.days_fedcusts = 0;
     this.timerOn = false;
@@ -61,6 +64,9 @@ export default class GameStats {
 
   gameOver() {
     // perform reset of objects needed to reset game
+    this.custs = [];
+    this.thugs = [];
+
     this.day = 1;
     this.dollars = 0;
     this.days_tax = 2;
