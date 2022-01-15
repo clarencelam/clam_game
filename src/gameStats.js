@@ -37,11 +37,17 @@ export default class GameStats {
     this.sign_width = 600;
 
     this.custs = [];
+    this.thugs = [];
 
     this.custgen_on = false;
-    this.custgen_time = 3000;
+    this.custgen_time = 2000;
     this.activecust_length = this.custs.length;
     this.activecust_maxlength = 15;
+
+    this.thuggen_on = false;
+    this.thuggen_time = 2000;
+    this.activethug_length = this.thugs.length;
+    this.activethug_maxlength = 15;
   }
 
   resetLevel() {

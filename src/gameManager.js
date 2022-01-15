@@ -92,8 +92,7 @@ export default class GameManager {
     switch (this.gamestate) {
       // ----- GAMESTATE = BUSINESSDAY -----
       case GAMESTATE.BUSINESSDAY:
-        this.generateThugs();
-
+        this.thugs = this.gameStats.thugs; // makes thug list inherit from gamestats
         this.thugs.forEach((thug) => initializeThugRandomMovement(thug));
         this.updateThugs();
         this.thugs = this.thugs.filter((thug) => !thug.markfordelete);
@@ -103,7 +102,7 @@ export default class GameManager {
         this.customers = this.customers.filter(
           (customer) => !customer.markfordelete
         );
-        this.customers = this.gameStats.custs; // makes customer string inherit from gamestats
+        this.customers = this.gameStats.custs; // makes customer list inherit from gamestats
         this.updateCustomers(deltaTime);
 
         this.checkClamGettingFood();
@@ -539,6 +538,7 @@ export default class GameManager {
       initializeTimer(this.gameStats);
 
       initializeCustomers(this.gameStats);
+      initializeThugs(this.gameStats);
     }
 
     if (gamestate === GAMESTATE.TUTORIAL) {
@@ -801,7 +801,6 @@ export default class GameManager {
       this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
     }
   }
-  */
 
   generateThugs() {
     if (this.thugs.length < 1) {
@@ -809,7 +808,7 @@ export default class GameManager {
       console.log(this.thugs);
     }
   }
-
+  */
   updateCoins(coins) {
     coins.forEach((coin) => {
       if (detectCollision(coin, this.clam)) {
@@ -1033,6 +1032,28 @@ function initializeCustomers(gamestats) {
         gamestats.custs.push(new Customer(1200, 800));
       } else {
         // no spawn
+      }
+    }
+  }
+}
+
+function initializeThugs(gamestats) {
+  if (gamestats.thuggen_on === false) {
+    var init_thugs = setInterval(genThugs, gamestats.thuggen_time);
+    gamestats.thuggen_on = true;
+  }
+  function genThugs() {
+    if (gamestats.thuggen_on === false) {
+      clearInterval(init_thugs);
+    }
+
+    if (gamestats.activethug_length <= gamestats.activethug_maxlength) {
+      let rndInteger = randomIntFromInterval(1, 10);
+      console.log("thug roll: " + rndInteger);
+      if (rndInteger === 1) {
+        gamestats.thugs.push(new Thug(1200, 800));
+      } else {
+        // nospawn
       }
     }
   }
