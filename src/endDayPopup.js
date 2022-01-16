@@ -4,7 +4,7 @@ export default class EndDayPopup {
     this.x_pos = box_x;
     this.y_pos = box_y;
     this.height = 180;
-    this.width = 350;
+    this.width = 700;
     this.box_title = "BUSINESS DAY OVER";
     this.numFed = numFed;
     this.numCoins = numCoins;

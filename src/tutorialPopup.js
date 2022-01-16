@@ -28,7 +28,7 @@ export default class TutorialPopup {
       "And be careful for thieves-- a rock or two should keep them away";
     this.box_line8 = "TODAY'S WORKDAY: " + this.timer_length + " SECONDS";
     this.box_line9 = "TAX OWED AT END OF DAY: " + this.tax_amount + " DOLLARS";
-    this.box_line10 = "Feed the first customer to begin the workday";
+    this.box_line10 = "Walk RIGHT to begin the workday";
   }
 
   drawTextLine(ctx, line, linenum) {

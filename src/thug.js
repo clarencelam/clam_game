@@ -1,4 +1,5 @@
 import { GAMESTATE } from "./gameManager";
+import { randomIntFromInterval } from "/src/gameMechanics";
 
 export const THIEFSTATE = {
   WALKING: 0,
@@ -33,9 +34,17 @@ export default class Thug {
 
     this.img = document.getElementById("thugA1");
 
-    this.x_pos = 10;
-    this.y_pos = 10;
+    this.y_pos = 700;
+
+    this.randombinary = randomIntFromInterval(1, 2);
+    if (this.randombinary === 1) {
+      this.x_pos = 1;
+    } else {
+      this.x_pos = this.GAMEWIDTH - this.width;
+    }
+
     this.markfordelete = false;
+
     this.randomMovementOn = false;
     this.randomMovementInterval = 3000;
 
@@ -55,8 +64,10 @@ export default class Thug {
 
   update(gamestate) {
     // check if thug is stopped
-    if (gamestate === GAMESTATE.ENDDAY || gamestate === GAMESTATE.GAMEOVER) {
+    if (gamestate === GAMESTATE.GAMEOVER) {
       this.state = THIEFSTATE.STANDING;
+    } else if (gamestate === GAMESTATE.ENDDAY) {
+      this.state = THIEFSTATE.EXITING;
     }
     switch (this.state) {
       case THIEFSTATE.WALKING:
@@ -82,6 +93,23 @@ export default class Thug {
         this.img = this.img_standing;
         break;
 
+      case THIEFSTATE.EXITING:
+        this.attacking = false;
+        this.x_pos = this.x_pos + this.speed * this.x_direction;
+        this.y_pos = this.y_pos;
+        if (this.checkBorders() === true) {
+          this.markfordelete = true;
+        }
+        const newtime2 = new Date();
+        let s2 = newtime2.getMilliseconds();
+        if (s2 < 500) {
+          this.img = this.img_frame1;
+        } else {
+          this.img = this.img_frame2;
+        }
+
+        break;
+
       default:
       //
     }
@@ -99,6 +127,20 @@ export default class Thug {
     }
     if (this.y_pos + this.height >= this.GAMEHEIGHT) {
       this.y_direction = this.y_direction * -1;
+    }
+  }
+
+  checkBorders() {
+    if (this.x_pos <= 0) {
+      return true;
+    } else if (this.x_pos + this.width >= this.GAMEWIDTH) {
+      return true;
+    } else if (this.y_pos <= 0) {
+      return true;
+    } else if (this.y_pos + this.height >= this.GAMEHEIGHT) {
+      return true;
+    } else {
+      return false;
     }
   }
 

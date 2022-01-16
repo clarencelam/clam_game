@@ -170,9 +170,10 @@ export default class GameManager {
 
         this.updateCoins(this.coins);
         this.checkClamGettingFood();
-        this.thugs.forEach((thug) => initializeThugRandomMovement(thug));
-        this.updateThugs();
+
+        this.thugs = this.gameStats.thugs; // makes thug list inherit from gamestats
         this.thugs = this.thugs.filter((thug) => !thug.markfordelete);
+        this.updateThugs();
 
         this.bullets = this.bullets.filter(
           (bullet) => !bullet.marked_for_deletion
@@ -558,10 +559,12 @@ export default class GameManager {
 
     if (gamestate === GAMESTATE.ENDDAY) {
       this.kitchen.cooking = false;
+
       this.gameStats.timerOn = false;
       this.gameStats.custgen_on = false;
+      this.gameStats.thuggen_on = false;
+
       this.gamestate = GAMESTATE.ENDDAY;
-      this.gameStats.resetLevel();
       this.popups.push(
         new EndDayPopup(
           this.GAME_WIDTH,
@@ -612,8 +615,9 @@ export default class GameManager {
         this.clam.x_pos = 638;
         this.clam.y_pos = 248;
       }
-      this.kitchen.cooking = false;
       this.eraseObjects();
+      this.gameStats.resetLevel();
+
       this.gamestate = GAMESTATE.NIGHT;
       this.portals.push(new Portal(620, 255, GAMESTATE.INCITY1));
     }
@@ -758,7 +762,11 @@ export default class GameManager {
     let swingdelay = 200;
     this.thugs.forEach((thug) => {
       thug.update(this.gamestate);
-      if (detectRectCollision(thug, this.clam) && thug.attacking === false) {
+      if (
+        detectRectCollision(thug, this.clam) &&
+        thug.attacking === false &&
+        this.gamestate === GAMESTATE.BUSINESSDAY
+      ) {
         thug.attacking = true;
         thug.state = THIEFSTATE.ATTACKING;
         thug.randomMovementOn = false;
@@ -794,21 +802,6 @@ export default class GameManager {
     });
   }
 
-  /*
-  generateCustomers() {
-    // reload customers array (temporary code, will flesh out cust gen)
-    if (this.customers.length < 4) {
-      this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
-    }
-  }
-
-  generateThugs() {
-    if (this.thugs.length < 1) {
-      this.thugs.push(new Thug(this.GAME_WIDTH, this.GAME_HEIGHT));
-      console.log(this.thugs);
-    }
-  }
-  */
   updateCoins(coins) {
     coins.forEach((coin) => {
       if (detectCollision(coin, this.clam)) {
@@ -984,34 +977,6 @@ function initializeThugRandomMovement(thug) {
   }
 }
 
-/*
-function generateCustomers(gamestats) {
-  if (gamestats.custgen_on === false) {
-    var custgen = setInterval(generateCusts, 1000, gamestats);
-    gamestats.custgen_on = true;
-  }
-
-  function generateCusts(stats) {
-    if (stats.custgen_on === false) {
-      clearInterval(custgen);
-    }
-    this.customers.push(new Customer(1200, 800));
-
-    if (stats.activecust_length <= stats.activecust_maxlength) {
-      let rndInteger = randomIntFromInterval(1, 3);
-      console.log(rndInteger);
-      if (rndInteger === 1) {
-        this.customers.push(new Customer(1200, 800));
-      } else if (rndInteger === 2) {
-        this.customers.push(new Customer(1200, 800));
-        this.customers.push(new Customer(1200, 800));
-      } else {
-        // no spawn
-      }
-    }
-  }
-}
-*/
 function initializeCustomers(gamestats) {
   if (gamestats.custgen_on === false) {
     var init_custs = setInterval(genCusts, gamestats.custgen_time);
@@ -1136,3 +1101,18 @@ function initializeCooking(kitchen) {
     }
   }
 */
+/*
+  generateCustomers() {
+    // reload customers array (temporary code, will flesh out cust gen)
+    if (this.customers.length < 4) {
+      this.customers.push(new Customer(this.GAME_WIDTH, this.GAME_HEIGHT));
+    }
+  }
+
+  generateThugs() {
+    if (this.thugs.length < 1) {
+      this.thugs.push(new Thug(this.GAME_WIDTH, this.GAME_HEIGHT));
+      console.log(this.thugs);
+    }
+  }
+  */
