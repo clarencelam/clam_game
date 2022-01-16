@@ -73,6 +73,8 @@ export default class GameStats {
     this.dollars = 0;
     this.days_tax = 2;
     this.lives = 10;
+    this.thuggen_time = 1000;
+
     this.resetLevel();
   }
 

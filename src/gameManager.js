@@ -1021,21 +1021,25 @@ function initializeCustomers(gamestats) {
 
 function initializeThugs(gamestats) {
   if (gamestats.thuggen_on === false) {
-    var init_thugs = setInterval(genThugs, gamestats.thuggen_time);
+    var init_thugs = setInterval(
+      genThugs,
+      gamestats.thuggen_time,
+      gamestats.thuggen_time
+    );
     gamestats.thuggen_on = true;
   }
-  function genThugs() {
-    if (gamestats.thuggen_on === false || this.gamestate === gamestats.ENDDAY) {
+  function genThugs(time) {
+    if (gamestats.thuggen_on === false) {
       clearInterval(init_thugs);
     }
-
     if (gamestats.activethug_length <= gamestats.activethug_maxlength) {
-      let rndInteger = randomIntFromInterval(1, 10);
+      let rndInteger = randomIntFromInterval(1, 2);
       console.log("thug roll: " + rndInteger);
+      console.log("thuggen time" + gamestats.thuggen_time);
       if (rndInteger === 1) {
         gamestats.thugs.push(new Thug(1200, 800));
       } else {
-        // nospawn
+        //nospawn
       }
     }
   }
