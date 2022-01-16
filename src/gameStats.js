@@ -45,7 +45,7 @@ export default class GameStats {
     this.activecust_maxlength = 15;
 
     this.thuggen_on = false;
-    this.thuggen_time = 2000;
+    this.thuggen_time = 1000;
     this.activethug_length = this.thugs.length;
     this.activethug_maxlength = 15;
   }

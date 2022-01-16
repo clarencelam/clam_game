@@ -227,15 +227,13 @@ export default class GameManager {
         ctx.drawImage(this.background, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
         this.kitchen.draw(ctx);
 
-        this.thugs.forEach((thug) => thug.draw(ctx));
-
         [
+          ...this.popups,
           ...this.customers,
+          ...this.thugs,
           ...this.bullets,
-          ...this.coins,
-          ...this.popups
+          ...this.coins
         ].forEach((object) => object.draw(ctx));
-        this.customers.forEach((cust) => cust.draw(ctx));
 
         this.clam.draw(ctx);
         this.gameStats.draw(ctx);
