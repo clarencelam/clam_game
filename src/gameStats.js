@@ -48,6 +48,8 @@ export default class GameStats {
     this.thuggen_time = 1000;
     this.activethug_length = this.thugs.length;
     this.activethug_maxlength = 15;
+
+    this.notax_thuggen_penalty = -250; // At GAMESTATE.NEXTLEVEL, if user has not paid days tax, apply this penalty to thuggen_time
   }
 
   resetLevel() {
@@ -78,6 +80,11 @@ export default class GameStats {
     // Increment objects to make the next level harder
     this.days_tax = this.days_tax + 1;
     this.day++;
+
+    if (this.daysTaxPaid === false) {
+      this.thuggen_time = this.thuggen_time + this.notax_thuggen_penalty;
+      console.log("Current thug gen time: " + this.thuggen_time);
+    }
   }
 
   update() {}

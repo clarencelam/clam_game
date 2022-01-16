@@ -262,10 +262,20 @@ export default class GameManager {
         ctx.drawImage(this.night_bg, 0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
 
         ctx.drawImage(this.car, 600, 178);
-        let objectstodraw = [this.kitchen, this.clam, this.gameStats];
+        let objectstodraw = [
+          this.kitchen,
+          this.clam,
+          this.gameStats,
+          ...this.bullets,
+          ...this.coins,
+          ...this.popups
+        ];
         objectstodraw.forEach((object) => object.draw(ctx));
         // Draw portals for buildings
+        this.npcs.forEach((npc) => npc.draw(ctx));
         this.portals.forEach((object) => object.draw(ctx));
+        this.checkTaxMan(ctx);
+
         break;
 
       case GAMESTATE.INHOOD_NIGHT:
@@ -320,6 +330,11 @@ export default class GameManager {
         this.npcs.forEach((npc) => npc.draw(ctx));
         this.clam.draw(ctx);
         this.portals.forEach((object) => object.draw(ctx));
+        ctx.fillText(
+          "Taxes Paid - CLAM: " + this.gameStats.daysTaxPaid,
+          500,
+          400
+        );
 
         this.checkTaxMan(ctx);
         this.gameStats.draw(ctx);
@@ -470,11 +485,15 @@ export default class GameManager {
             this.checkAndTriggerPortals(this.portals);
             break;
 
-          case GAMESTATE.NIGHT:
           case GAMESTATE.INHOME:
           case GAMESTATE.INCITY1:
           case GAMESTATE.INCITY2:
           case GAMESTATE.RESTO:
+            this.checkAndTriggerPortals(this.portals);
+            break;
+
+          case GAMESTATE.NIGHT:
+            this.payTaxMan();
             this.checkAndTriggerPortals(this.portals);
             break;
 
@@ -618,6 +637,7 @@ export default class GameManager {
 
       this.gamestate = GAMESTATE.NIGHT;
       this.portals.push(new Portal(620, 255, GAMESTATE.INCITY1));
+      this.npcs.push(new TaxMan(1000, 600, this.gameStats.days_tax));
     }
 
     if (gamestate === GAMESTATE.INCITY1) {
@@ -895,26 +915,25 @@ export default class GameManager {
   }
 
   checkTaxMan(ctx) {
-    ctx.fillText("Taxes Paid - SAM: true", 500, 350);
-    ctx.fillText("Taxes Paid - CLAM: " + this.gameStats.daysTaxPaid, 500, 400);
-
     let taxguy = this.npcs[0];
-    if (
-      detectRectCollision(this.clam, taxguy) &&
-      this.gameStats.daysTaxPaid === false
-    ) {
-      taxguy.drawPopup(ctx);
+    if (this.gameStats.daysTaxPaid === false) {
+      if (detectRectCollision(this.clam, taxguy)) {
+        taxguy.drawPopup(ctx);
+      }
     }
   }
 
   payTaxMan() {
     let taxguy = this.npcs[0];
     if (
-      detectRectCollision(this.clam, taxguy) &&
-      this.gameStats.daysTaxPaid === false
+      this.gameStats.daysTaxPaid === false &&
+      this.gameStats.dollars >= this.gameStats.days_tax
     ) {
-      this.gameStats.daysTaxPaid = true;
-      this.gameStats.dollars = this.gameStats.dollars - this.gameStats.days_tax;
+      if (detectRectCollision(this.clam, taxguy)) {
+        this.gameStats.daysTaxPaid = true;
+        this.gameStats.dollars =
+          this.gameStats.dollars - this.gameStats.days_tax;
+      }
     }
   }
 }
