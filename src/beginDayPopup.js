@@ -5,14 +5,19 @@ export default class BeginDayPopup {
     this.gameheight = gameheight;
     this.height = 200;
     this.width = 800;
+
     this.day_number = daynumber;
     this.timer_length = timerlength;
     this.tax_amount = taxamount;
 
-    this.screen_centered_x = this.gamewidth / 2;
-    this.screen_centered_y = this.gameheight / 2;
+    this.screen_centered_x = this.gamewidth / 2 - this.width / 2;
+    this.screen_centered_y = this.gameheight / 2 - this.height / 2;
+    this.screen_bottom_y = this.gameheight - this.height;
 
-    this.box_background_color = "#B3EFF7";
+    this.x_pos = this.screen_centered_x;
+    this.y_pos = this.screen_bottom_y - 10;
+
+    this.box_background_color = "white";
     this.box_outline_color = "black";
     this.default_font = "20px Tahoma";
 
@@ -26,38 +31,24 @@ export default class BeginDayPopup {
   }
 
   drawTextLine(ctx, line, linenum) {
-    ctx.fillText(
-      line,
-      this.screen_centered_x,
-      this.screen_centered_y - this.height / 2 + 30 * linenum
-    );
+    ctx.fillText(line, this.x_pos + 10, this.y_pos + 30 * linenum);
   }
 
   draw(ctx) {
     // draw box to put info in
     ctx.fillStyle = this.box_background_color;
-    ctx.textAlign = "center";
+    ctx.textAlign = "left";
     ctx.font = "25px Tahoma";
 
-    ctx.fillRect(
-      this.screen_centered_x - this.width / 2,
-      this.screen_centered_y - this.height / 2,
-      this.width,
-      this.height
-    );
+    ctx.fillRect(this.x_pos, this.y_pos, this.width, this.height);
     ctx.stroke();
 
     // draw outline for box
     ctx.fillStyle = this.box_outline_color;
-    ctx.strokeRect(
-      this.screen_centered_x - this.width / 2,
-      this.screen_centered_y - this.height / 2,
-      this.width,
-      this.height
-    );
+    ctx.strokeRect(this.x_pos, this.y_pos, this.width, this.height);
 
     ctx.font = this.default_font;
-    ctx.textAlign = "center";
+    ctx.textAlign = "left";
 
     this.drawTextLine(ctx, this.box_title, 1);
     this.drawTextLine(ctx, this.box_line1, 2);

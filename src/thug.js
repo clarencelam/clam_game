@@ -95,17 +95,23 @@ export default class Thug {
 
       case THIEFSTATE.EXITING:
         this.attacking = false;
-        this.x_pos = this.x_pos + this.speed * this.x_direction;
-        this.y_pos = this.y_pos;
+        this.x_pos = this.x_pos + this.speed * this.x_direction; // get thief to exit
+        this.y_pos = this.y_pos; // stop y movement
+
         if (this.checkBorders() === true) {
           this.markfordelete = true;
         }
-        const newtime2 = new Date();
-        let s2 = newtime2.getMilliseconds();
-        if (s2 < 500) {
-          this.img = this.img_frame1;
+
+        if (this.x_direction === 0) {
+          this.img = this.img_standing;
         } else {
-          this.img = this.img_frame2;
+          const newtime2 = new Date();
+          let s2 = newtime2.getMilliseconds();
+          if (s2 < 500) {
+            this.img = this.img_frame1;
+          } else {
+            this.img = this.img_frame2;
+          }
         }
 
         break;

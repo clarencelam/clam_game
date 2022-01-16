@@ -1006,7 +1006,7 @@ function initializeThugs(gamestats) {
     gamestats.thuggen_on = true;
   }
   function genThugs() {
-    if (gamestats.thuggen_on === false) {
+    if (gamestats.thuggen_on === false || this.gamestate === gamestats.ENDDAY) {
       clearInterval(init_thugs);
     }
 
