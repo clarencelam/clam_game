@@ -22,8 +22,8 @@ export default class UpgradeObject {
 
     switch (this.type) {
       case 0:
-        this.cost = 5;
-        this.cost_increment = 5;
+        this.cost = 4;
+        this.cost_increment = 4;
         this.incrementseconds = -100;
         this.stat_maxlevel = 20;
         break;

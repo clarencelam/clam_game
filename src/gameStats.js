@@ -8,14 +8,14 @@ export default class GameStats {
     this.day = 1;
 
     this.timerOn = false;
-    this.business_day_timer = 20;
+    this.business_day_timer = 30;
 
     this.advance_interval = 1000; //one second = two minute passes in timer
 
     this.days_dollars = 0;
     this.days_fedcusts = 0;
     this.days_tax = 2;
-    this.lives = 10;
+    this.lives = 3;
 
     this.display_height = 40;
     this.display_width = 400;
@@ -45,7 +45,7 @@ export default class GameStats {
     this.activecust_maxlength = 15;
 
     this.thuggen_on = false;
-    this.thuggen_time = 1000;
+    this.thuggen_time = 5000;
     this.activethug_length = this.thugs.length;
     this.activethug_maxlength = 15;
 
@@ -60,7 +60,7 @@ export default class GameStats {
     this.days_dollars = 0;
     this.days_fedcusts = 0;
     this.timerOn = false;
-    this.business_day_timer = 20;
+    this.business_day_timer = 30;
     this.daysTaxPaid = false;
   }
 
